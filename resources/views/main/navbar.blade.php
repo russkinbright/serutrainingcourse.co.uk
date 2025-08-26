@@ -1,7 +1,7 @@
 @php
     $is = fn($pattern) => request()->is(trim($pattern, '/')) || request()->is(trim($pattern, '/') . '/*');
 @endphp
-hello hello boy 
+hello hello boy  hen want it shoisndfsfhsfsfSF
 <nav
     class="bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 shadow-2xl sticky w-full z-50 top-0 backdrop-blur-sm bg-opacity-90 border-b border-purple-500/20">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
