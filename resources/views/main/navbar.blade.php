@@ -40,7 +40,7 @@
                         class="absolute -inset-2 rounded-lg bg-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></span>
                 </a>
 
-                <a href="/blog"
+                {{-- <a href="/blog"
                     class="nav-link {{ $is('blog') ? 'is-active' : '' }} text-purple-100 hover:text-white no-underline transition-all duration-300 relative group">
                     <span class="relative z-10 flex items-center"><i
                             class="fa-solid fa-blog mr-2"></i><span>Blog</span></span>
@@ -48,7 +48,7 @@
                         class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-fuchsia-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
                     <span
                         class="absolute -inset-2 rounded-lg bg-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></span>
-                </a>
+                </a> --}}
 
                 <a href="/about-us"
                     class="nav-link {{ $is('about-us') ? 'is-active' : '' }} text-purple-100 hover:text-white no-underline transition-all duration-300 relative group">
