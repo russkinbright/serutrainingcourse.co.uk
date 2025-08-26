@@ -179,11 +179,11 @@
                 <span class="group-hover:font-medium">Courses</span>
             </a>
 
-            {{-- <a href="/blog"
+            <a href="/blog"
                 class="block py-3 px-4 text-purple-100 hover:text-white hover:bg-purple-800/50 no-underline transition-all duration-300 group flex items-center justify-center">
                 <i class="fa fa-blog mr-2 group-hover:scale-125 transition-transform duration-300"></i>
                 <span class="group-hover:font-medium">Blog</span>
-            </a> --}}
+            </a>
 
             <a href="/about-us"
                 class="block py-3 px-4 text-purple-100 hover:text-white hover:bg-purple-800/50 no-underline transition-all duration-300 group flex items-center justify-center">
