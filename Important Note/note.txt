@@ -1,0 +1,25 @@
+mysql -u u715729948_coursecave2025 -p u715729948_coursecave
+
+
+SHOW TABLES;
+SHOW COLUMNS FROM learner; // table name
+SELECT * FROM learner LIMIT 5; // show table data
+
+
+this is for import file from local
+
+scp -P 65002 "C:\Users\Russkin Bright\Downloads\Seru-hero.png" u715729948@195.200.11.30:/home/u715729948/domains/serutrainingcourse.co.uk/public_html/public/image
+
+scp -P 65002 -r `
+  "C:\Users\Russkin Bright\Downloads\errors" `
+  u715729948@195.200.11.30:/home/u715729948/domains/serutrainingcourse.co.uk/public_html/resources/views/
+
+
+// This is for download the total project into local
+scp -r -P 65002 u715729948@195.200.11.30:/home/u715729948/domains/serutrainingcourse.co.uk/public_html "C:/xampp/htdocs/Door-Seru"
+
+// this is for make a sql backup for a website via ssh  (Here Give Database Password)
+mysqldump -h 127.0.0.1 -u u715729948_russkinseru25 -p u715729948_russkinseru > backup.sql
+
+
+

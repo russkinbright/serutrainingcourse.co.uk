@@ -1,0 +1,28 @@
+now i have practiceQuestion.blade.php and PracticeQuestionController.php
+
+here i want to search the section name and then it will show 2 input where i will give how many single answer question and how many double answer question.Then click on generate than show the input filed one for question and than 3 radio button for single answer question allow only one radio selection button but for double answer allow 2 radio selection button for all question there will if another field name with incorrect where store in correct text. 
+
+this is my p_question database structure
+	#	Name	Type	Collation	Attributes	Null	Default	Comments	Extra	Action
+	1	id Primary	int(255)			No	None		AUTO_INCREMENT	Change Change	Drop Drop	
+	2	unique_id	bigint(255)			Yes	NULL			Change Change	Drop Drop	
+	3	section_unique_id	bigint(255)			Yes	NULL			Change Change	Drop Drop	
+	4	type	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	5	question_text	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	6	option_a	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	7	option_b	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	8	option_c	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	9	answer_1	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	10	answer_2	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	11	incorrect	text	utf8mb4_general_ci		Yes	NULL			Change Change	Drop Drop	
+	12	created_at	timestamp(6)			Yes	NULL			Change Change	Drop Drop	
+	13	updated_at	timestamp(6)			Yes	NULL			Change Change	Drop Drop	
+
+
+here type will be single and double for single answer give put single for double answer put double and for double answer put 2 option in answer_1 for 1st answer and answer_2 for store 2nd answer.
+
+i have pdf where i have double and single option question.
+
+so now main thing after generate there will a file input where i will give a that pdf of single and double answer pdf and click in parse pdf than just automatically input in thoses filed accordingly and i will just click in submit and then store in database 
+
+so um going to give you the question pdf so that we can make the parse pdf functionality.
