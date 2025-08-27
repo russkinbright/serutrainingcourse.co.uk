@@ -38,6 +38,7 @@ use App\Http\Controllers\LearnerPaymentController;
 use App\Http\Controllers\LearnerCourseController;
 use App\Http\Controllers\FinalMockController;
 use App\Http\Controllers\CertificateHandleController;
+use App\Http\Controllers\HeaderFooterController;
 use App\Http\Controllers\ViewProfileController;
 
 Route::get('/', function () {
@@ -200,6 +201,11 @@ Route::get('/activities/poll', [ActivityController::class, 'pollActivities'])->n
 Route::get('/create-blog', [CreateBlogController::class, 'create'])->name('blog.create');
 Route::post('/create-blog', [CreateBlogController::class, 'store'])->name('blog.store');
 Route::post('/check-slug', [CreateBlogController::class, 'checkSlug'])->name('blog.checkSlug');
+
+// Tag Manager
+Route::get('/pixel/setup', [HeaderFooterController::class, 'index'])->name('pixel.index');
+Route::get('/pixel/{id}', [HeaderFooterController::class, 'show'])->name('pixel.show');
+Route::put('/pixel/{id}', [HeaderFooterController::class, 'update'])->name('pixel.update');
 
 
 /////////////////////////////////////////////////////////////////////////////////// Learner Panel ///////////////////////////////////////////////////////////// 
