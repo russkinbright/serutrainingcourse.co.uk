@@ -1,6 +1,6 @@
 # Auto-commit & push tracked changes every N seconds
 # Windows / PowerShell
-# - Only commits tracked file changes (untracked .env/vendor remain ignored if in .gitignore)
+# - Includes new files (respects .gitignore)
 # - Always asks for a commit message and appends date/time
 # - Keeps your original pull/commit/push flow
 
@@ -25,8 +25,8 @@ while ($true) {
     break
   }
 
-  # only tracked-file changes (ignores untracked like .env/vendor)
-  $status = git -C $folder status --porcelain --untracked-files=no
+  # detect any changes (tracked + untracked; respects .gitignore)
+  $status = git -C $folder status --porcelain
 
   if ($LASTEXITCODE -ne 0) {
     "[$(Get-Date -Format s)] git status failed" | Out-File -Append $log
@@ -35,11 +35,9 @@ while ($true) {
   }
 
   if ($status) {
-    # show a brief summary
-    $changes = git -C $folder diff --name-status
-    if (-not $changes) { $changes = "(changes detected but diff empty - maybe whitespace/line-endings)" }
+    # show a brief summary (shows added/modified/untracked)
     Write-Host "`n=== Changes detected ==="
-    $changes | Write-Host
+    $status | Write-Host
     Write-Host "========================`n"
 
     # prompt for commit message (required)
@@ -52,11 +50,29 @@ while ($true) {
     $commitMsg = "{0} ({1:yyyy-MM-dd HH:mm:ss})" -f $userMsg, (Get-Date)
 
     try {
-      # fetch latest and rebase (auto-stash can be configured globally; CLI flag can be flaky on some setups)
+      # fetch latest and rebase (if this causes issues, switch to: git -C $folder pull origin $branch)
       git -C $folder pull --rebase origin $branch | Out-Null
 
-      # commit only tracked file changes with your message + timestamp
-      git -C $folder commit -am $commitMsg | Out-Null
+      # include new files too (respects .gitignore)
+      git -C $folder add -A | Out-Null
+      if ($LASTEXITCODE -ne 0) {
+        $err = "add -A failed (code $LASTEXITCODE)"
+        Write-Warning $err
+        "[$(Get-Date -Format s)] $err" | Out-File -Append $log
+        Start-Sleep -Seconds $seconds
+        continue
+      }
+
+      # if nothing staged (can happen if only ignored files changed), skip
+      $pending = git -C $folder diff --cached --name-only
+      if (-not $pending) {
+        "[$(Get-Date -Format s)] nothing to commit (only ignored or no effective changes)" | Out-File -Append $log
+        Start-Sleep -Seconds $seconds
+        continue
+      }
+
+      # commit all staged changes with your message + timestamp
+      git -C $folder commit -m $commitMsg | Out-Null
       if ($LASTEXITCODE -ne 0) {
         $err = "commit failed (code $LASTEXITCODE) - not pushing"
         Write-Warning $err
