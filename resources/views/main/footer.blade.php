@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <span class="span font-medium text-purple-200">Address:</span>
-                            <address class="address text-white/90 hover:text-white transition-colors duration-300">66 Caledonian Road, London. N1 9DP</address>
+                            <address class="address text-white/90 hover:text-white transition-colors duration-300">Suite RA01, 195-197 Wood Street, London, E17 3NU</address>
                         </div>
                     </div>
                     <div class="wrapper flex gap-3 mt-4 items-center">
@@ -65,7 +65,7 @@
                         </div>
                         <div>
                             <span class="span font-medium text-purple-200">Email:</span>
-                            <a href="mailto:support@trainingtale.org" class="footer-link text-white/90 hover:text-white transition-colors duration-300 hover:underline">support@trainingtale.org</a>
+                            <a href="mailto:support@serutrainingcourse.co.uk" class="footer-link text-white/90 hover:text-white transition-colors duration-300 hover:underline">support@serutrainingcourse.co.uk</a>
                         </div>
                     </div>
                 </div>
