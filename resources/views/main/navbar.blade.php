@@ -77,7 +77,7 @@
                     <input type="text" placeholder="Search..."
                         class="px-5 py-3 bg-purple-900/50 text-white placeholder-purple-300 border border-purple-600/50 rounded-full
                         focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-500
-                        w-56 sm:w-72 md:w-[28rem] lg:w-[w-56] xl:w-[36rem]
+                        w-56 
                         group-hover:w-[36rem] focus:w-[36rem] backdrop-blur-sm text-base" />
                     <span
                         class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-purple-300 group-hover:text-purple-100 transition-colors duration-300">
