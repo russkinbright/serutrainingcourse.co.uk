@@ -70,7 +70,7 @@
   </header>
 
   <!-- Top Section -->
-  <div class="relative bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white py-2" data-aos="fade-down" data-aos-duration="800">
+  {{-- <div class="relative bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white py-2" data-aos="fade-down" data-aos-duration="800">
     <svg aria-hidden="true" class="absolute inset-0 w-full h-full opacity-10">
       <defs>
         <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
@@ -91,7 +91,7 @@
         Empowering individuals with top-tier training solutions to achieve their professional goals.
       </p>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Hero -->
   <section class="container mx-auto text-gray-700 hero-parallax mt-4 rounded-xl" style="background-image: url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop')" data-aos="fade-up" data-aos-duration="1000">
