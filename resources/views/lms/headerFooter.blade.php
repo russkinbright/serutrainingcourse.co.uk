@@ -60,6 +60,10 @@
         formData.append('_token', document.querySelector('meta[name=csrf-token]')?.content || '');
         formData.append('_method', 'PUT');
 
+        const res = await fetch(url, { method: 'POST', body: formData, headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) { throw new Error(await res.text()); }
+            const data = await res.json();
+
         try {
             const response = await fetch('{{ route('pixel.update', ':id') }}'.replace(':id', this.pixelId), {
                 method: 'POST',
@@ -69,11 +73,6 @@
                     'X-Requested-With': 'XMLHttpRequest',
                 },
             });
-
-            const res = await fetch(url, { method: 'POST', body: formData, headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-            if (!res.ok) { throw new Error(await res.text()); }
-            const data = await res.json();
-
             const data = await response.json();
             if (data.message) {
                 this.formStatus = 'success';
