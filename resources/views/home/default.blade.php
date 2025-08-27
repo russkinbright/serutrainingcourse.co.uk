@@ -22,7 +22,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 
-    <!-- Meta Pixel Base Code -->
 
     <!-- Google Tag Manager -->
     <script>
@@ -39,7 +38,7 @@
             j.src =
                 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-NPKT5FW7');
+        })(window, document, 'script', 'dataLayer', 'GTM-NXQZKWMH');
     </script>
     <!-- End Google Tag Manager -->
 
