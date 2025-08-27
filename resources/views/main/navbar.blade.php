@@ -13,7 +13,7 @@
                     <div class="w-[120px] sm:w-[150px] md:w-[180px] relative">
                         <img src="{{ asset('image/seru-logo.png') }}" alt="Logo"
                             class="w-full h-auto">
-                        <div class="absolute inset-0 bg-purple-500/20 rounded-lg blur-md -z-10"></div>
+                        {{-- <div class="absolute inset-0 bg-purple-500/20 rounded-lg blur-md -z-10"></div> --}}
                     </div>
                 </a>
             </div>
