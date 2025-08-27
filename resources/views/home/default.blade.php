@@ -23,7 +23,7 @@
 
 
     <!-- Meta Pixel Base Code -->
-    <script>
+    {{-- <script>
         ! function(f, b, e, v, n, t, s) {
             if (f.fbq) return;
             n = f.fbq = function() {
@@ -45,7 +45,7 @@
         // fbq('init', '1036396911776364');
         fbq('init', ''); // <-- replace with your pixel id if different
         fbq('track', 'PageView');
-    </script>
+    </script> --}}
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
