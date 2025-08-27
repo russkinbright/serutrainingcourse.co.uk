@@ -36,7 +36,7 @@
              } catch (error) {
                  console.error('Error fetching pixel data:', error);
                  this.formStatus = 'error';
-                 this.formMessage = 'Error loading pixel data. Please try again.';
+                 this.formMessage = `Error loading pixel data: ${error.message}. Please try again.`;
              } finally {
                  this.isLoading = false;
              }
@@ -56,7 +56,7 @@
              formData.append('header', this.header.trim());
              formData.append('body', this.body.trim());
              formData.append('footer', this.footer.trim());
-             formData.append('_token', document.querySelector('meta[name=csrf-token]').content);
+             formData.append('_token', document.querySelector('meta[name=csrf-token]')?.content || '');
              formData.append('_method', 'PUT');
 
              try {
@@ -82,7 +82,7 @@
              } catch (error) {
                  console.error('Form submission error:', error);
                  this.formStatus = 'error';
-                 this.formMessage = 'Failed to submit the form. Please try again.';
+                 this.formMessage = `Failed to submit the form: ${error.message}. Please try again.`;
              } finally {
                  this.isSubmitting = false;
              }
@@ -155,7 +155,7 @@
                     </div>
 
                     <!-- Footer Pixel Code -->
-                    <div class="relative">
+                    <div class="relative md:col-span-2">
                         <label for="footer" class="block text-xl font-bold text-purple-900 mb-3">
                             Footer Pixel Code
                         </label>

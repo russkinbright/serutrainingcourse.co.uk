@@ -47,7 +47,7 @@ class HeaderFooterController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Error fetching pixel data.',
+                'message' => 'Error fetching pixel data: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -62,9 +62,9 @@ class HeaderFooterController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'header' => 'nullable',
-            'body' => 'nullable',
-            'footer' => 'nullable',
+            'header' => 'nullable|string',
+            'body' => 'nullable|string',
+            'footer' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -88,22 +88,29 @@ class HeaderFooterController extends Controller
 
         try {
             $pixel = Pixel::find($id);
+            $data = [
+                'header' => $request->header ?? '',
+                'body' => $request->body ?? '',
+                'footer' => $request->footer ?? '',
+            ];
+
             if (!$pixel) {
                 // Create a new record if none exists
-                $pixel = Pixel::create([
-                    'id' => $id,
-                    'header' => $request->header ?? '',
-                    'body' => $request->body ?? '',
-                    'footer' => $request->footer ?? '',
+                $pixel = Pixel::create($data);
+                Log::info('Created new pixel record during update', [
+                    'pixel_id' => $id,
+                    'header_length' => strlen($data['header']),
+                    'body_length' => strlen($data['body']),
+                    'footer_length' => strlen($data['footer']),
                 ]);
-                Log::info('Created new pixel record during update', ['pixel_id' => $id]);
             } else {
-                $pixel->update([
-                    'header' => $request->header ?? '',
-                    'body' => $request->body ?? '',
-                    'footer' => $request->footer ?? '',
+                $pixel->update($data);
+                Log::info('Pixel data updated successfully', [
+                    'pixel_id' => $pixel->id,
+                    'header_length' => strlen($data['header']),
+                    'body_length' => strlen($data['body']),
+                    'footer_length' => strlen($data['footer']),
                 ]);
-                Log::info('Pixel data updated successfully', ['pixel_id' => $pixel->id]);
             }
 
             return response()->json([
@@ -114,10 +121,11 @@ class HeaderFooterController extends Controller
             Log::error('Error occurred while saving pixel data', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
+                'data' => $request->all(),
             ]);
 
             return response()->json([
-                'message' => 'An error occurred while saving the pixel data.',
+                'message' => 'Error saving pixel data: ' . $e->getMessage(),
             ], 500);
         }
     }
