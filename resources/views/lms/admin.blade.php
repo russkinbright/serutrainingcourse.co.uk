@@ -69,6 +69,14 @@
             @include('lms.editMockSecondQuestion')
         </div>
 
+        <div id="headerFooterPanel" class="panel hidden">
+            @include('lms.headerFooter')
+        </div>
+
+        <div id="googleTagIDPanel" class="panel hidden">
+            @include('lms.googleTagID')
+        </div>
+
         <div id="assignCoursePanel" class="panel hidden">
             @include('lms.learnerAssign')
         </div>
