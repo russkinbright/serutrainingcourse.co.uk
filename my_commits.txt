@@ -1,63 +1,64 @@
-808b2f1 | Chinmoy Datta Priom | 2025-08-27 | make the sidebar more responsive(admin) (2025-08-27 17:12:48)
-ce85418 | Chinmoy Datta Priom | 2025-08-27 | solve the error in header&footer try no 3 (2025-08-27 17:06:02)
-3e218a5 | Chinmoy Datta Priom | 2025-08-27 | solve the error in header&footer try no 2 (2025-08-27 16:58:44)
-5897f01 | Chinmoy Datta Priom | 2025-08-27 | solve the error in header&footer try no 1  (2025-08-27 16:57:17)
-a8a13da | Chinmoy Datta Priom | 2025-08-27 |  updated the header&footer controller and blade (2025-08-27 14:01:49)
-c7b7e5f | Chinmoy Datta Priom | 2025-08-27 |  updated the header&footer controller (2025-08-27 13:17:30)
-b1a1ba8 | Chinmoy Datta Priom | 2025-08-27 | updated the header&footer controller (2025-08-27 13:12:24)
-31116a9 | Chinmoy Datta Priom | 2025-08-27 | testing the design and controller of header&footer  (2025-08-27 12:19:54)
-84678a5 | Chinmoy Datta Priom | 2025-08-27 | add header,footer and controller in tag manager (2025-08-27 11:54:23)
-e50f931 | Chinmoy Datta Priom | 2025-08-27 | add header,footer and controller in tag manager
-919aae2 | Chinmoy Datta Priom | 2025-08-27 | add tag manager option in admin panel (2025-08-27 11:27:32)
-5eed6a3 | Chinmoy Datta Priom | 2025-08-27 | add tag manager in sidebar in admin (2025-08-27 11:25:43)
-dee2fc8 | Chinmoy Datta Priom | 2025-08-27 | add a new section"Tag Manager" In admin
-9e00ed1 | Chinmoy Datta Priom | 2025-08-27 | change the footer address,call and email (2025-08-27 11:10:22)
-c4f3f1a | Chinmoy Datta Priom | 2025-08-27 |  change the width in search (2025-08-27 11:06:54)
-e52e998 | Chinmoy Datta Priom | 2025-08-27 |  change the width in search (2025-08-27 11:05:57)
-0cc07ae | Chinmoy Datta Priom | 2025-08-27 |  change the width in search (2025-08-27 11:03:31)
-4d93999 | Chinmoy Datta Priom | 2025-08-27 | change the width in search (2025-08-27 11:02:42)
-d014a78 | Chinmoy Datta Priom | 2025-08-27 | change the width of search in navbar (2025-08-27 11:02:00)
-319f0ef | Chinmoy Datta Priom | 2025-08-27 | correct the image size in nav bar (2025-08-27 10:58:46)
-812dc6f | Chinmoy Datta Priom | 2025-08-27 | remove navbar image shadow (2025-08-27 10:57:54)
-c9dc4d9 | Chinmoy Datta Priom | 2025-08-27 | reshape the navbar (2025-08-27 10:56:33)
-f1d834b | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:25:23
-21e14d2 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:25:19
-d422f2c | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:25:14
-6719370 | Chinmoy Datta Priom | 2025-08-27 | Comment out the blog from navbar
-e5a6f38 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:17:05
-53eb144 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:17:00
-f3f56e7 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:55
-a31520a | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:50
-0612253 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:45
-4d5c8c7 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:41
-cfe0a61 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:36
-3af78bf | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:31
-558baf2 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:16:26
-de14c08 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:04:08
-6ec84a4 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:04:04
-a6adf18 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:59
-bc96800 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:55
-414e2ad | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:50
-6f9f12a | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:46
-a8fcf1f | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:41
-b6a7525 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:37
-764e303 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:32
-a5b96d1 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:27
-4efc62c | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:23
-36ee214 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:18
-29525b7 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:13
-7ea3aaa | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:09
-3bef39e | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:04
-237c633 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:03:00
-870ad18 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:55
-f87eef5 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:51
-92fa3ed | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:46
-69a216f | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:42
-19953ca | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:37
-2f60330 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:32
-68df894 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:28
-b4596a8 | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:23
-692ca7e | Chinmoy Datta Priom | 2025-08-27 | Auto-commit: 2025-08-27 10:02:19
-9aac2cc | Chinmoy Datta Priom | 2025-08-26 | Auto-commit: 2025-08-26 18:20:43
-c902178 | Chinmoy Datta Priom | 2025-08-26 | Auto-commit: 2025-08-26 18:20:26
-47711ce | Chinmoy Datta Priom | 2025-08-26 | Auto-commit: 2025-08-26 18:18:42
+03e1992 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  make the sidebar more responsive(admin) 2 (2025-08-27 17:27:01)
+808b2f1 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | make the sidebar more responsive(admin) (2025-08-27 17:12:48)
+ce85418 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | solve the error in header&footer try no 3 (2025-08-27 17:06:02)
+3e218a5 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | solve the error in header&footer try no 2 (2025-08-27 16:58:44)
+5897f01 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | solve the error in header&footer try no 1  (2025-08-27 16:57:17)
+a8a13da | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  updated the header&footer controller and blade (2025-08-27 14:01:49)
+c7b7e5f | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  updated the header&footer controller (2025-08-27 13:17:30)
+b1a1ba8 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | updated the header&footer controller (2025-08-27 13:12:24)
+31116a9 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | testing the design and controller of header&footer  (2025-08-27 12:19:54)
+84678a5 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | add header,footer and controller in tag manager (2025-08-27 11:54:23)
+e50f931 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | add header,footer and controller in tag manager
+919aae2 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | add tag manager option in admin panel (2025-08-27 11:27:32)
+5eed6a3 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | add tag manager in sidebar in admin (2025-08-27 11:25:43)
+dee2fc8 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | add a new section"Tag Manager" In admin
+9e00ed1 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | change the footer address,call and email (2025-08-27 11:10:22)
+c4f3f1a | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  change the width in search (2025-08-27 11:06:54)
+e52e998 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  change the width in search (2025-08-27 11:05:57)
+0cc07ae | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 |  change the width in search (2025-08-27 11:03:31)
+4d93999 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | change the width in search (2025-08-27 11:02:42)
+d014a78 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | change the width of search in navbar (2025-08-27 11:02:00)
+319f0ef | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | correct the image size in nav bar (2025-08-27 10:58:46)
+812dc6f | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | remove navbar image shadow (2025-08-27 10:57:54)
+c9dc4d9 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | reshape the navbar (2025-08-27 10:56:33)
+f1d834b | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:25:23
+21e14d2 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:25:19
+d422f2c | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:25:14
+6719370 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Comment out the blog from navbar
+e5a6f38 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:17:05
+53eb144 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:17:00
+f3f56e7 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:55
+a31520a | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:50
+0612253 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:45
+4d5c8c7 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:41
+cfe0a61 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:36
+3af78bf | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:31
+558baf2 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:16:26
+de14c08 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:04:08
+6ec84a4 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:04:04
+a6adf18 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:59
+bc96800 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:55
+414e2ad | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:50
+6f9f12a | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:46
+a8fcf1f | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:41
+b6a7525 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:37
+764e303 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:32
+a5b96d1 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:27
+4efc62c | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:23
+36ee214 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:18
+29525b7 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:13
+7ea3aaa | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:09
+3bef39e | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:04
+237c633 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:03:00
+870ad18 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:55
+f87eef5 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:51
+92fa3ed | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:46
+69a216f | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:42
+19953ca | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:37
+2f60330 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:32
+68df894 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:28
+b4596a8 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:23
+692ca7e | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-27 | Auto-commit: 2025-08-27 10:02:19
+9aac2cc | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-26 | Auto-commit: 2025-08-26 18:20:43
+c902178 | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-26 | Auto-commit: 2025-08-26 18:20:26
+47711ce | Chinmoy Datta Priom <dattapro001@gmail.com> | 2025-08-26 | Auto-commit: 2025-08-26 18:18:42

@@ -39,18 +39,23 @@
             border-collapse: separate;
             border-spacing: 0 1rem;
         }
-        .cart-table th, .cart-table td {
+
+        .cart-table th,
+        .cart-table td {
             padding: 1rem;
             text-align: left;
         }
+
         .cart-table th {
             background: linear-gradient(to right, #4f46e5, #7c3aed);
             color: white;
             font-weight: 600;
         }
+
         .cart-table td {
             background: white;
         }
+
         .cart-table img {
             width: 64px;
             height: 64px;
@@ -58,6 +63,7 @@
             border-radius: 8px;
             border: 1px solid #fbcfe8;
         }
+
         .cart-table input {
             width: 80px;
             border: 2px solid #f472b6;
@@ -71,10 +77,12 @@
             .cart-table {
                 display: none;
             }
+
             .cart-card {
                 display: block;
             }
         }
+
         @media (min-width: 768px) {
             .cart-card {
                 display: none;
@@ -82,14 +90,18 @@
         }
     </style>
 
-    <header class="fixed top-0 left-0 w-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg z-20 transition-all duration-300" data-header>
+    <header
+        class="fixed top-0 left-0 w-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg z-20 transition-all duration-300"
+        data-header>
         @include('main.navbar')
     </header>
 
     <main id="top" class="relative bg-gray-100 min-h-screen pt-20">
         <!-- SVG Wave Background -->
         <svg class="wave-bg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path fill="#f472b6" fill-opacity="0.3" d="M0,192L48,197.3C96,203,192,213,288,213.3C384,213,480,203,576,181.3C672,160,768,128,864,138.7C960,149,1056,203,1152,213.3C1248,224,1344,192,1392,176L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+            <path fill="#f472b6" fill-opacity="0.3"
+                d="M0,192L48,197.3C96,203,192,213,288,213.3C384,213,480,203,576,181.3C672,160,768,128,864,138.7C960,149,1056,203,1152,213.3C1248,224,1344,192,1392,176L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+            </path>
         </svg>
 
         <div class="mx-auto max-w-[1500px] relative z-10 px-4 py-8">
@@ -98,7 +110,8 @@
                 messages: [],
                 init() {
                     const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-                    // Merge duplicates by incrementing quantity
+            
+                    // merge duplicates
                     const mergedItems = [];
                     storedItems.forEach(item => {
                         const existingItem = mergedItems.find(i => i.unique_id === item.unique_id);
@@ -108,10 +121,75 @@
                             mergedItems.push({ ...item, quantity: item.quantity || 1 });
                         }
                     });
+            
                     this.cartItems = mergedItems;
                     localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+            
+                    // Fire AddToCart for everything currently in cart (optional but common)
+                    if (this.cartItems.length) {
+                        this.sendMetaAddToCart();
+                    }
+            
                     AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
                 },
+            
+                // ---- NEW: Meta Pixel helpers ----
+                sendMetaAddToCart() {
+                    try {
+                        if (!window.fbq || !this.cartItems.length) return;
+            
+                        const ids = this.cartItems.map(i => String(i.unique_id));
+                        const contents = this.cartItems.map(i => ({
+                            id: String(i.unique_id),
+                            quantity: i.quantity || 1,
+                            item_price: Number(i.price || 0)
+                        }));
+                        const value = this.cartItems.reduce((sum, i) => sum + Number(i.price || 0) * (i.quantity || 1), 0);
+                        const eventId = 'atc-' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
+            
+                        fbq('track', 'AddToCart', {
+                            content_ids: ids,
+                            contents: contents,
+                            content_type: 'product',
+                            value: value,
+                            currency: 'GBP',
+                            event_id: eventId
+                        });
+                        // console.log('FB AddToCart sent', {ids, value, eventId});
+                    } catch (e) {
+                        console.error('FB AddToCart error', e);
+                    }
+                },
+            
+                sendMetaInitiateCheckout() {
+                    try {
+                        if (!window.fbq || !this.cartItems.length) return;
+            
+                        const ids = this.cartItems.map(i => String(i.unique_id));
+                        const contents = this.cartItems.map(i => ({
+                            id: String(i.unique_id),
+                            quantity: i.quantity || 1,
+                            item_price: Number(i.price || 0)
+                        }));
+                        const value = this.cartItems.reduce((sum, i) => sum + Number(i.price || 0) * (i.quantity || 1), 0);
+                        const eventId = 'ic-' + Date.now() + '-' + Math.floor(Math.random() * 1e6);
+            
+                        fbq('track', 'InitiateCheckout', {
+                            content_ids: ids,
+                            contents: contents,
+                            content_type: 'product',
+                            num_items: this.cartItems.length,
+                            value: value,
+                            currency: 'GBP',
+                            event_id: eventId
+                        });
+                        // console.log('FB InitiateCheckout sent', {ids, value, eventId});
+                    } catch (e) {
+                        console.error('FB InitiateCheckout error', e);
+                    }
+                },
+            
+            
                 addMessage(text, type) {
                     const id = Date.now();
                     this.messages.push({ id, text, type });
@@ -130,6 +208,8 @@
                         this.addMessage('Cart updated!', 'success');
                     }
                     localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+                    // Optional: re-fire AddToCart after quantity change (comment out if you prefer not to)
+                    // this.sendMetaAddToCart();
                 },
                 removeItem(index) {
                     this.cartItems.splice(index, 1);
@@ -144,8 +224,10 @@
                 getCartTotal() {
                     return this.cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0).toFixed(2);
                 },
-
+            
                 checkout() {
+                    // fire InitiateCheckout before leaving the page
+                    this.sendMetaInitiateCheckout();
                     window.location.href = '{{ route('learner.payment') }}';
                 }
             }" x-init="init()">
@@ -153,13 +235,17 @@
                 <!-- Message Container -->
                 <div class="mb-6" data-aos="fade-up">
                     <template x-for="message in messages" :key="message.id">
-                        <div :class="message.type === 'success' ? 'bg-green-100 border-green-500 text-green-700' : 'bg-red-100 border-red-500 text-red-700'"
-                             class="border-l-4 p-4 mb-2 rounded-r-lg flex items-center justify-between animate-fade-in glassmorphic">
+                        <div :class="message.type === 'success' ? 'bg-green-100 border-green-500 text-green-700' :
+                            'bg-red-100 border-red-500 text-red-700'"
+                            class="border-l-4 p-4 mb-2 rounded-r-lg flex items-center justify-between animate-fade-in glassmorphic">
                             <div class="flex items-center">
-                                <i :class="message.type === 'success' ? 'fas fa-check-circle text-green-500' : 'fas fa-exclamation-circle text-red-500'" class="mr-2"></i>
+                                <i :class="message.type === 'success' ? 'fas fa-check-circle text-green-500' :
+                                    'fas fa-exclamation-circle text-red-500'"
+                                    class="mr-2"></i>
                                 <span x-text="message.text"></span>
                             </div>
-                            <button @click="messages = messages.filter(m => m.id !== message.id)" class="text-xl font-bold text-gray-700 hover:text-gray-900">
+                            <button @click="messages = messages.filter(m => m.id !== message.id)"
+                                class="text-xl font-bold text-gray-700 hover:text-gray-900">
                                 ×
                             </button>
                         </div>
@@ -191,7 +277,9 @@
                                     <td x-text="item.title"></td>
                                     <td x-text="'£' + item.price.toFixed(2)"></td>
                                     <td>
-                                        <input type="number" x-model.number="cartItems[index].quantity" min="1" @change="updateQuantity(index, $event.target.value)" class="focus:ring-2 focus:ring-pink-300">
+                                        <input type="number" x-model.number="cartItems[index].quantity" min="1"
+                                            @change="updateQuantity(index, $event.target.value)"
+                                            class="focus:ring-2 focus:ring-pink-300">
                                     </td>
                                     <td x-text="'£' + (item.price * (item.quantity || 1)).toFixed(2)"></td>
                                     <td>
@@ -219,11 +307,15 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <label class="text-gray-700 mr-2">Quantity:</label>
-                                    <input type="number" x-model.number="cartItems[index].quantity" min="1" @change="updateQuantity(index, $event.target.value)" class="focus:ring-2 focus:ring-pink-300">
+                                    <input type="number" x-model.number="cartItems[index].quantity" min="1"
+                                        @change="updateQuantity(index, $event.target.value)"
+                                        class="focus:ring-2 focus:ring-pink-300">
                                 </div>
-                                <p class="text-green-600 font-bold" x-text="'Total: £' + (item.price * (item.quantity || 1)).toFixed(2)"></p>
+                                <p class="text-green-600 font-bold"
+                                    x-text="'Total: £' + (item.price * (item.quantity || 1)).toFixed(2)"></p>
                             </div>
-                            <button @click="removeItem(index)" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg cursor-pointer btn-pulse transition transform hover:scale-95 flex items-center justify-center">
+                            <button @click="removeItem(index)"
+                                class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg cursor-pointer btn-pulse transition transform hover:scale-95 flex items-center justify-center">
                                 <i class="fas fa-trash mr-2"></i> Remove
                             </button>
                         </div>
@@ -233,7 +325,8 @@
                 <!-- Empty Cart -->
                 <div x-show="cartItems.length === 0" class="text-center text-gray-700 mt-8" data-aos="fade-up">
                     <h2 class="text-2xl font-bold">Your Cart is Empty</h2>
-                    <p class="mt-2">Browse our <a href="/courses" class="text-pink-600 hover:underline">courses</a> to add some!</p>
+                    <p class="mt-2">Browse our <a href="/courses" class="text-pink-600 hover:underline">courses</a> to add
+                        some!</p>
                 </div>
 
                 <!-- Cart Summary -->
@@ -255,34 +348,43 @@
                             </div>
                         </div>
 
-                            <!-- Checkout Button -->
-                            <button
-                                class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-4 rounded-xl font-bold hover:from-purple-600 hover:to-indigo-600 transition-all shadow-lg shadow-purple-300/50 transform hover:scale-100 cursor-pointer flex items-center justify-center"
-                                @click="checkout">
-                                Checkout
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                </svg>
-                            </button>
-                    
+                        <!-- Checkout Button -->
+                        <button
+                            class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-4 rounded-xl font-bold hover:from-purple-600 hover:to-indigo-600 transition-all shadow-lg shadow-purple-300/50 transform hover:scale-100 cursor-pointer flex items-center justify-center"
+                            @click="checkout">
+                            Checkout
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+
                         <!-- Clear Cart Button (Desktop) -->
                         <div class="mt-4 hidden md:block">
-                            <button @click="clearCart()" class="w-full flex items-center justify-center px-4 py-2 border cursor-pointer border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:scale-100 transition-colors">
+                            <button @click="clearCart()"
+                                class="w-full flex items-center justify-center px-4 py-2 border cursor-pointer border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:scale-100 transition-colors">
                                 Clear Cart
                             </button>
                         </div>
                         <div class="mt-6 flex items-center justify-center text-center text-purple-700 font-extrabold">
-                            <svg class="flex-shrink-0 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            <svg class="flex-shrink-0 mr-2 h-5 w-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
                             </svg>
                             <p>Secure checkout</p>
                         </div>
                     </div>
                     <!-- Continue Shopping -->
                     <div class="mt-4 text-center">
-                        <a href="/course" class="inline-flex items-center text-sm text-purple-700 font-extrabold transition-colors">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+                        <a href="/course"
+                            class="inline-flex items-center text-sm text-purple-700 font-extrabold transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                             </svg>
                             Continue Shopping
                         </a>
@@ -291,8 +393,11 @@
             </div>
 
             <!-- Back to Top Button -->
-            <a href="#top" id="backToTopBtn" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-600 to-orange-600 text-white p-4 rounded-full shadow-lg z-50 transition-all duration-300 opacity-0 pointer-events-none hover:scale-110" aria-label="Back to Top" data-aos="fade-up">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="#top" id="backToTopBtn"
+                class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-600 to-orange-600 text-white p-4 rounded-full shadow-lg z-50 transition-all duration-300 opacity-0 pointer-events-none hover:scale-110"
+                aria-label="Back to Top" data-aos="fade-up">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                 </svg>
             </a>
