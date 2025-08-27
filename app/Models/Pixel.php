@@ -19,6 +19,7 @@ class Pixel extends Model
 
     protected $fillable = [
         'header',
+        'body',
         'footer',
     ];
 

@@ -3,6 +3,7 @@
          pixelId: 1,
          isLoading: false,
          header: '',
+         body: '',
          footer: '',
          formMessage: '',
          formStatus: '',
@@ -15,18 +16,16 @@
                  const response = await fetch('{{ route('pixel.show', ':id') }}'.replace(':id', this.pixelId), {
                      headers: {
                          'Accept': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest',
                      },
                  });
                  if (!response.ok) {
                      throw new Error(`HTTP error! Status: ${response.status}`);
                  }
-                 const contentType = response.headers.get('Content-Type');
-                 if (!contentType || !contentType.includes('application/json')) {
-                     throw new Error('Invalid response format: Expected JSON');
-                 }
                  const data = await response.json();
                  if (data.pixel) {
                      this.header = data.pixel.header || '';
+                     this.body = data.pixel.body || '';
                      this.footer = data.pixel.footer || '';
                      this.formStatus = 'success';
                      this.formMessage = 'Pixel data loaded successfully.';
@@ -43,9 +42,9 @@
              }
          },
          submitForm: async function() {
-             if (!this.header.trim() && !this.footer.trim()) {
+             if (!this.header.trim() && !this.body.trim() && !this.footer.trim()) {
                  this.formStatus = 'error';
-                 this.formMessage = 'Please provide at least one pixel code (header or footer).';
+                 this.formMessage = 'Please provide at least one pixel code (header, body, or footer).';
                  this.isSubmitting = false;
                  return;
              }
@@ -55,6 +54,7 @@
 
              const formData = new FormData();
              formData.append('header', this.header.trim());
+             formData.append('body', this.body.trim());
              formData.append('footer', this.footer.trim());
              formData.append('_token', document.querySelector('meta[name=csrf-token]').content);
              formData.append('_method', 'PUT');
@@ -65,6 +65,7 @@
                      body: formData,
                      headers: {
                          'Accept': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest',
                      },
                  });
                  const data = await response.json();
@@ -143,6 +144,16 @@
                                   placeholder="Enter header pixel code (e.g., Google Analytics, Facebook Pixel)" rows="6"></textarea>
                     </div>
 
+                    <!-- Body Pixel Code -->
+                    <div class="relative">
+                        <label for="body" class="block text-xl font-bold text-purple-900 mb-3">
+                            Body Pixel Code
+                        </label>
+                        <textarea name="body" id="body" x-model="body"
+                                  class="w-full px-5 py-4 rounded-xl border border-purple-300 focus:outline-none focus:ring-4 focus:ring-purple-400/50 transition-all duration-500 bg-white/70 shadow-inner text-purple-900 placeholder-purple-400 focus:bg-white hover:scale-[1.02] transform hover:shadow-lg"
+                                  placeholder="Enter body pixel code (e.g., tracking scripts in body)" rows="6"></textarea>
+                    </div>
+
                     <!-- Footer Pixel Code -->
                     <div class="relative">
                         <label for="footer" class="block text-xl font-bold text-purple-900 mb-3">
@@ -157,10 +168,10 @@
                 <!-- Submit Button -->
                 <div class="flex justify-center mt-8">
                     <button type="button"
-                            :disabled="isSubmitting"
+                            :disabled="isSubmitting || (!header.trim() && !body.trim() && !footer.trim())"
                             @click="submitForm()"
                             class="w-full md:w-1/2 px-6 py-4 text-white font-bold text-lg rounded-xl transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 flex items-center justify-center relative overflow-hidden"
-                            :class="isSubmitting ? 'bg-purple-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 hover:ring-4 hover:ring-purple-400/50'">
+                            :class="(isSubmitting || (!header.trim() && !body.trim() && !footer.trim())) ? 'bg-purple-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 hover:ring-4 hover:ring-purple-400/50'">
                         <span class="absolute inset-0 bg-purple-700 opacity-30 hover:opacity-50 transition-opacity duration-500 z-0"></span>
                         <div class="flex items-center relative z-10">
                             <template x-if="isSubmitting">

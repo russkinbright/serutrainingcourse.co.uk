@@ -17,10 +17,22 @@ class HeaderFooterController extends Controller
     public function show($id)
     {
         try {
-            $pixel = Pixel::findOrFail($id);
+            $pixel = Pixel::find($id);
+            if (!$pixel) {
+                // Create a default record if none exists
+                $pixel = Pixel::create([
+                    'id' => $id,
+                    'header' => '',
+                    'body' => '',
+                    'footer' => '',
+                ]);
+                Log::info('Created default pixel record', ['pixel_id' => $id]);
+            }
+
             Log::info('Fetching pixel data', [
                 'pixel_id' => $id,
                 'header_length' => strlen($pixel->header ?? ''),
+                'body_length' => strlen($pixel->body ?? ''),
                 'footer_length' => strlen($pixel->footer ?? ''),
             ]);
 
@@ -35,8 +47,8 @@ class HeaderFooterController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Pixel data not found.',
-            ], 404);
+                'message' => 'Error fetching pixel data.',
+            ], 500);
         }
     }
 
@@ -51,6 +63,7 @@ class HeaderFooterController extends Controller
 
         $validator = Validator::make($request->all(), [
             'header' => 'nullable|string',
+            'body' => 'nullable|string',
             'footer' => 'nullable|string',
         ]);
 
@@ -64,31 +77,47 @@ class HeaderFooterController extends Controller
             ], 422);
         }
 
-        try {
-            $pixel = Pixel::findOrFail($id);
-            $pixel->update([
-                'header' => $request->header,
-                'footer' => $request->footer,
-            ]);
-
-            Log::info('Pixel data updated successfully', [
-                'pixel_id' => $pixel->id,
-                'header_length' => strlen($pixel->header ?? ''),
-                'footer_length' => strlen($pixel->footer ?? ''),
-            ]);
+        // Check if at least one field is provided
+        if (!$request->filled('header') && !$request->filled('body') && !$request->filled('footer')) {
+            Log::warning('No pixel data provided for update', ['pixel_id' => $id]);
 
             return response()->json([
-                'message' => 'Pixel data updated successfully!',
+                'errors' => ['form' => ['Please provide at least one pixel code (header, body, or footer).']],
+            ], 422);
+        }
+
+        try {
+            $pixel = Pixel::find($id);
+            if (!$pixel) {
+                // Create a new record if none exists
+                $pixel = Pixel::create([
+                    'id' => $id,
+                    'header' => $request->header ?? '',
+                    'body' => $request->body ?? '',
+                    'footer' => $request->footer ?? '',
+                ]);
+                Log::info('Created new pixel record during update', ['pixel_id' => $id]);
+            } else {
+                $pixel->update([
+                    'header' => $request->header ?? '',
+                    'body' => $request->body ?? '',
+                    'footer' => $request->footer ?? '',
+                ]);
+                Log::info('Pixel data updated successfully', ['pixel_id' => $pixel->id]);
+            }
+
+            return response()->json([
+                'message' => 'Pixel data saved successfully!',
                 'pixel' => $pixel,
             ], 200);
         } catch (\Exception $e) {
-            Log::error('Error occurred while updating pixel data', [
+            Log::error('Error occurred while saving pixel data', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
-                'message' => 'An error occurred while updating the pixel data.',
+                'message' => 'An error occurred while saving the pixel data.',
             ], 500);
         }
     }
