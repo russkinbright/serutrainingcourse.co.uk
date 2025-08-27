@@ -47,25 +47,25 @@
             this.isSubmitting = false;
             return;
         }
+
         this.isSubmitting = true;
         this.formMessage = '';
         this.formStatus = '';
 
-        const b64 = s => btoa(unescape(encodeURIComponent(s)));
-
-        const formData = new FormData();
-        formData.append('header', b64(this.header));
-        formData.append('body', b64(this.body));
-        formData.append('footer', b64(this.footer));
-        formData.append('_token', document.querySelector('meta[name=csrf-token]')?.content || '');
-        formData.append('_method', 'PUT');
-
-        const res = await fetch(url, { method: 'POST', body: formData, headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-            if (!res.ok) { throw new Error(await res.text()); }
-            const data = await res.json();
-
         try {
-            const response = await fetch('{{ route('pixel.update', ':id') }}'.replace(':id', this.pixelId), {
+            // unicode-safe base64 (bypasses WAF blocks on <script>)
+            const b64 = s => btoa(unescape(encodeURIComponent(s)));
+
+            const url = '{{ route('pixel.update', ':id') }}'.replace(':id', this.pixelId);
+
+            const formData = new FormData();
+            formData.append('header', b64(this.header));
+            formData.append('body', b64(this.body));
+            formData.append('footer', b64(this.footer));
+            formData.append('_token', document.querySelector('meta[name=csrf-token]')?.content || '');
+            formData.append('_method', 'PUT');
+
+            const res = await fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -73,7 +73,15 @@
                     'X-Requested-With': 'XMLHttpRequest',
                 },
             });
-            const data = await response.json();
+
+            if (!res.ok) {
+                // if host returns HTML (e.g., 403 Forbidden), show a readable error
+                const text = await res.text();
+                throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,200)}`);
+            }
+
+            const data = await res.json();
+
             if (data.message) {
                 this.formStatus = 'success';
                 this.formMessage = data.message;
@@ -87,11 +95,12 @@
         } catch (error) {
             console.error('Form submission error:', error);
             this.formStatus = 'error';
-            this.formMessage = `Failed to submit the form: ${error.message}. Please try again.`;
+            this.formMessage = `Failed to submit the form: ${error.message}.`;
         } finally {
             this.isSubmitting = false;
         }
     }
+
 }" x-init="fetchPixel()">
     <nav class="bg-purple-600 text-white p-4 shadow-md rounded-2xl">
         <div class="container-fluid flex justify-between items-center">

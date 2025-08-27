@@ -17,11 +17,8 @@ class Pixel extends Model
 
     protected $keyType = 'int';
 
-    protected $fillable = [
-        'header',
-        'body',
-        'footer',
-    ];
+    protected $fillable = ['id','header','body','footer'];
+
 
     protected $casts = [
         'created_at' => 'datetime',
