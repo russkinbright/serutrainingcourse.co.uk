@@ -62,9 +62,9 @@ class HeaderFooterController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'header' => 'nullable|string',
-            'body' => 'nullable|string',
-            'footer' => 'nullable|string',
+            'header' => 'nullable',
+            'body' => 'nullable',
+            'footer' => 'nullable',
         ]);
 
         if ($validator->fails()) {
