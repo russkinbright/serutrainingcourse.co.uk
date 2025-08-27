@@ -42,10 +42,10 @@
             s.parentNode.insertBefore(t, s)
         }(window, document, 'script', '');
 
-        fbq('init', '1036396911776364'); // <-- replace with your pixel id if different
+        // fbq('init', '1036396911776364');
+        fbq('init', ''); // <-- replace with your pixel id if different
         fbq('track', 'PageView');
     </script>
-    
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
@@ -61,7 +61,7 @@
             j.src =
                 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-KPK6WCPT');
+        })(window, document, 'script', 'dataLayer', 'GTM-NPKT5FW7');
     </script>
     <!-- End Google Tag Manager -->
 
