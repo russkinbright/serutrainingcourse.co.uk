@@ -386,6 +386,81 @@
                 </button>
             </li>
 
+            {{-- Tag Manager --}}
+              <li class="relative" x-data="{ isHovering: false }">
+                <button
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
+                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+                    <svg class="w-8 h-8 mr-3 text-purple-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span class="font-medium">Tag Manager</span>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 ml-auto text-purple-300 transform transition-transform duration-300"
+                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-end="opacity-0 transform -translate-y-2"
+                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white">
+                    <!-- Bookings -->
+                    <li class="relative">
+                        <button onclick="showPanel('bookingsPanel')"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Payments
+                        </button>
+                    </li>
+                    <!-- Assign Learner -->
+                    <li class="relative">
+                        <button onclick="showPanel('assignCoursePanel')"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            Assign Learner
+                        </button>
+                    </li>
+                    <!-- Assign Course -->
+                    <li class="relative">
+                        <button onclick="showPanel('assignLearnerPanel')"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            Assign Course
+                        </button>
+                    </li>
+                    <li class="relative">
+                        <button onclick="showPanel('blogsPanel')"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            Blogs
+                        </button>
+                    </li>
+                </ul>
+            </li>
+
             <!-- Others -->
             <li class="relative" x-data="{ isHovering: false }">
                 <button
