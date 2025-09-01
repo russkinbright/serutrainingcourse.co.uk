@@ -21,6 +21,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        <!-- Meta that will be filled from JS -->
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="robots" content="">
+    <link rel="canonical" href="">
+
     {{-- ADDED: initialize dataLayer before GTM --}}
     <script>window.dataLayer = window.dataLayer || [];</script>
 

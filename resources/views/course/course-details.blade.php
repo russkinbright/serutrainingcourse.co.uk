@@ -1,8 +1,5 @@
 @extends('home.default')
-
-
 @section('content')
-    {{-- IMPORTANT: No Tailwind @apply or @keyframes here to avoid Blade parsing errors --}}
     <style>
         [x-cloak] { display: none; }
 
@@ -48,7 +45,7 @@
         }
         .loading-text { margin-top: 1rem; color: #4b5563; font-size: 1.25rem; font-weight: 500; text-align: center; }
     </style>
-</head>
+
 
 
     <header
@@ -435,5 +432,3 @@
         </svg>
     </a>
 @endsection
-
-
