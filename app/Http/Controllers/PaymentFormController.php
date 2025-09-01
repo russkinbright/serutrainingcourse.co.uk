@@ -219,8 +219,7 @@ class PaymentFormController extends Controller
                 }
             }
 
-            // Fallback
-            return response()->json(['success' => true, 'message' => 'Payment processed successfully']);
+            return view('emails.successPayment');
 
         } catch (ValidationException $e) { // ✅ this now resolves
             Log::error('Validation failed:', ['errors' => $e->errors(), 'input' => $request->all()]);
