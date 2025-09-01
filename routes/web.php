@@ -69,7 +69,7 @@ Route::get('/pay', function () {
     return view('emails.successPayment');
 });
 
-Route::get('/checkout/success', function () {
+Route::get('/demo/checkout/success', function () {
     return view('emails.successPayment');
 })->name('checkout.success');
 
