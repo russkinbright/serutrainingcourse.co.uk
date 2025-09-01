@@ -205,10 +205,8 @@ class PaymentFormController extends Controller
                     DB::commit();
 
                     // frontend will show “Purchase successfully completed!” and clear cart
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Purchase successfully completed'
-                    ]);
+                    return view('emails.successPayment');
+                    
                 } catch (\Throwable $tx) {
                     DB::rollBack();
                     Log::error('Other payment tx error: '.$tx->getMessage());
@@ -219,7 +217,7 @@ class PaymentFormController extends Controller
                 }
             }
 
-            return view('emails.successPayment');
+            
 
         } catch (ValidationException $e) { // ✅ this now resolves
             Log::error('Validation failed:', ['errors' => $e->errors(), 'input' => $request->all()]);
