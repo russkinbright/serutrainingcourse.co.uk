@@ -1,11 +1,7 @@
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 <div x-data="{
     isSidebarOpen: true,
-    editHover: false,
-    editOpen: false,
     selected: null,
-    subOpen: false,
-    selectedSub: null,
     showLogoutModal: false,
     unreadMessageCount: 0,
     debounceTimeout: null,
@@ -33,8 +29,12 @@
         setTimeout(() => {
             this.updateUnreadCount();
         }, 500);
+    },
+    toggleSubmenu(menu) {
+        this.selected = this.selected === menu ? null : menu;
     }
-}" x-init="init" x-on:destroy.window="destroy"
+}" x-init="fetchUnreadMessageCount();
+pollInterval = setInterval(() => fetchUnreadMessageCount(), 30000)" x-on:destroy.window="clearInterval(pollInterval)"
     class="flex h-screen bg-gradient-to-br from-purple-50 to-indigo-50" x-cloak>
 
     <!-- Hamburger Menu Icon -->
@@ -55,15 +55,9 @@
 
         <!-- SVG Logo -->
         <div class="flex justify-center mt-4 px-4">
-            <div
-                class="relative group rounded-lg overflow-hidden transition-all duration-500 ease-in-out hover:shadow-2xl hover:scale-105 hover:rotate-1">
-                <!-- Purple hover overlay -->
-                <div
-                    class="absolute inset-0 bg-purple-500 opacity-0 group-hover:opacity-30 transition-opacity duration-500 mix-blend-multiply pointer-events-none">
-                </div>
-
+            <div class="relative rounded-lg overflow-hidden transition-all duration-500 ease-in-out">
                 <img src="{{ secure_asset('image/nav-logo.png') }}" alt="Logo"
-                    class="w-full h-auto max-h-32 transition-transform duration-500 ease-in-out transform group-hover:scale-110 group-hover:brightness-110 rounded-lg">
+                    class="w-full h-auto max-h-32 rounded-lg">
             </div>
         </div>
 
@@ -72,9 +66,10 @@
             <!-- Dashboard -->
             <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
                     onclick="showPanel('dashboardPanel')">
-                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3M5 10H3a2 2 0 00-2 2v7a2 2 0 002 2h18a2 2 0 002-2v-7a2 2 0 00-2-2h-2" />
                     </svg>
@@ -83,27 +78,30 @@
             </li>
 
             <!-- Course -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
-                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('course')">
+                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
                     </svg>
                     <span class="font-medium flex-1">Course</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        :class="{ 'rotate-90': selected === 'course' }" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false" x-transition
-                    x-cloak
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'course'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('createCoursePanel')">
                             <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -113,9 +111,9 @@
                             Create
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('editCoursePanel')">
                             <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -129,67 +127,69 @@
             </li>
 
             <!-- Section -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
-                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('section')">
+                    <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     <span class="font-medium flex-1">Section</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        :class="{ 'rotate-90': selected === 'section' }" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false" x-transition
-                    x-cloak
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'section'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('createSectionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Create
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('connectSectionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Connect Course
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('removeSectionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Remove Course
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('editSectionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -200,10 +200,10 @@
             </li>
 
             <!-- Practice -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('practice')">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -212,44 +212,45 @@
                     <span class="font-medium flex-1">Practice</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        :class="{ 'rotate-90': selected === 'practice' }" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false" x-transition
-                    x-cloak
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'practice'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('createPracticePanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Create
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('practiceQuestionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Make Question
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('editPracticeQuestionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -260,10 +261,10 @@
             </li>
 
             <!-- Mock -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('mock')">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -272,79 +273,83 @@
                     <span class="font-medium flex-1">Mock</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        :class="{ 'rotate-90': selected === 'mock' }" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false" x-transition
-                    x-cloak
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'mock'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('createMockPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             Create
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('mockOneQuestionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Make Question Mock-1
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center"
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
                             onclick="showPanel('mockSecondQuestionPanel')">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Make Question Mock-2
                         </button>
                     </li>
-                    <li class="relative" x-data="{ editHover: false }" @mouseenter="editHover = true"
-                        @mouseleave="editHover = false">
+                    <li>
                         <button
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center"
+                            @click="toggleSubmenu('mock_edit')">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                             Edit
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                                :class="{ 'rotate-90': editHover }" fill="none" viewBox="0 0 24 24"
+                                :class="{ 'rotate-90': selected === 'mock_edit' }" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
-                        <ul x-show="editHover" x-transition x-cloak
-                            class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
+                        <ul x-show="selected === 'mock_edit'" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 max-h-0"
+                            x-transition:enter-end="opacity-100 max-h-screen"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-end="opacity-0 max-h-0" class="pl-6 mt-2 space-y-2">
                             <li>
                                 <button onclick="showPanel('editMockOneQuestionPanel')"
-                                    class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300">
+                                    class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300">
                                     Edit Mock 1
                                 </button>
                             </li>
                             <li>
                                 <button onclick="showPanel('editMockSecondQuestionPanel')"
-                                    class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300">
+                                    class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300">
                                     Edit Mock 2
                                 </button>
                             </li>
@@ -356,7 +361,7 @@
             <!-- Message -->
             <li>
                 <button @click="showPanel('messagePanel'); setTimeout(() => fetchUnreadMessageCount(), 3000)"
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -372,7 +377,7 @@
             <!-- Settings -->
             <li>
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
                     onclick="showPanel('settingsPanel')">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -386,10 +391,10 @@
             </li>
 
             <!-- Tag Manager -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('tag_manager')">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -398,34 +403,31 @@
                     <span class="font-medium flex-1">Tag Manager</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        :class="{ 'rotate-90': selected === 'tag_manager' }" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform -translate-y-2"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-end="opacity-0 transform -translate-y-2"
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'tag_manager'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button onclick="showPanel('headerFooterPanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Header & Footer
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button onclick="showPanel('googleTagIDPanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
@@ -436,10 +438,10 @@
             </li>
 
             <!-- Others -->
-            <li class="relative" x-data="{ isHovering: false }">
+            <li class="relative">
                 <button
-                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 hover:bg-purple-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(139,92,246,0.3)] border border-purple-400/50 flex items-center hover-float"
-                    @mouseenter="isHovering = true" @mouseleave="isHovering = false">
+                    class="w-full p-3 text-left rounded-lg text-gray-100 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 transition-all duration-300 border border-purple-400/50 flex items-center"
+                    @click="toggleSubmenu('others')">
                     <svg class="w-8 h-8 mr-3 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -448,56 +450,53 @@
                     <span class="font-medium flex-1">Others</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4 text-purple-300 transform transition-transform duration-300"
-                        :class="{ 'rotate-90': isHovering }" fill="none" viewBox="0 0 24 24"
+                        :class="{ 'rotate-90': selected === 'others' }" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
-                <ul x-show="isHovering" @mouseenter="isHovering = true" @mouseleave="isHovering = false"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform -translate-y-2"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-end="opacity-0 transform -translate-y-2"
-                    class="absolute left-full top-0 w-48 p-2 rounded-lg shadow-xl z-50 backdrop-blur-md bg-purple-700 text-white md:w-44">
-                    <li class="relative">
+                <ul x-show="selected === 'others'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen"
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 max-h-0"
+                    class="pl-6 mt-2 space-y-2">
+                    <li>
                         <button onclick="showPanel('bookingsPanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Payments
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button onclick="showPanel('assignCoursePanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                             Assign Learner
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button onclick="showPanel('assignLearnerPanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             Assign Course
                         </button>
                     </li>
-                    <li class="relative">
+                    <li>
                         <button onclick="showPanel('blogsPanel')"
-                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 hover:bg-gradient-to-r hover:bg-purple-500 transition-all duration-300 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            class="w-full p-2 text-sm text-left rounded-lg text-gray-100 bg-purple-700/50 transition-all duration-300 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-300 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
@@ -510,8 +509,9 @@
             <!-- Logout -->
             <li class="mt-2">
                 <button @click="showLogoutModal = true"
-                    class="w-full rounded-xl flex items-center justify-center p-3 text-white bg-gradient-to-r from-purple-600 to-indigo-700 hover:bg-purple-500 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]">
-                    <svg class="w-8 h-8 mr-2 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full rounded-xl flex items-center justify-center p-3 text-white bg-gradient-to-r from-purple-600 to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]">
+                    <svg class="w-8 h-8 mr-2 text-white flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
@@ -548,8 +548,7 @@
                     class="px-6 py-2 bg-white border border-purple-200 text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-300 hover:shadow-md">
                     Cancel
                 </button>
-                <a href="/admin/logout"
-                    role="button"
+                <a href="/admin/logout" role="button"
                     class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-300 hover:shadow-md">
                     Logout
                 </a>
@@ -562,47 +561,40 @@
             0% {
                 transform: translateY(0px);
             }
+
             50% {
                 transform: translateY(-5px);
             }
+
             100% {
                 transform: translateY(0px);
             }
         }
 
         .hover-float:hover {
-            animation: float 2s ease-in-out infinite;
+            animation: none;
+            /* Remove floating animation */
         }
 
         .shadow-purple-glow {
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
 
-        .hover\:shadow-purple-glow:hover {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
-
-        /* Ensure sidebar items don't shrink unnecessarily */
         .flex-1 {
             min-width: 0;
         }
 
-        /* Smooth scrolling for touch devices */
         aside {
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Submenu positioning for smaller screens */
         @media (max-width: 768px) {
             aside ul ul {
-                left: 0 !important;
-                top: 100%;
                 width: 100%;
                 max-width: 100%;
             }
         }
 
-        /* Adjust hamburger button visibility */
         @media (min-width: 768px) {
             button[x-on\\:click="isSidebarOpen = !isSidebarOpen"] {
                 display: none;
@@ -622,3 +614,4 @@
             }
         }
     </script>
+</div>
