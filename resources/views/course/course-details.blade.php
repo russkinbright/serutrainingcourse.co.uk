@@ -37,11 +37,12 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Safe: ensure dataLayer exists (keeps your links untouched) -->
+    <script>window.dataLayer = window.dataLayer || [];</script>
+
     {{-- IMPORTANT: No Tailwind @apply or @keyframes here to avoid Blade parsing errors --}}
     <style>
-        [x-cloak] {
-            display: none;
-        }
+        [x-cloak] { display: none; }
 
         .glassmorphic {
             background: rgba(255, 255, 255, 0.1);
@@ -50,111 +51,40 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        .card-hover {
-            transition: transform .3s ease, box-shadow .3s ease;
-        }
+        .card-hover { transition: transform .3s ease, box-shadow .3s ease; }
+        .card-hover:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
 
-        .card-hover:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-pulse {
-            position: relative;
-            overflow: hidden;
-        }
-
+        .btn-pulse { position: relative; overflow: hidden; }
         .btn-pulse::after {
             content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
+            position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0; background: rgba(255, 255, 255, .3);
+            border-radius: 50%; transform: translate(-50%, -50%);
             transition: width .5s ease, height .5s ease;
         }
+        .btn-pulse:hover::after { width: 300px; height: 300px; }
 
-        .btn-pulse:hover::after {
-            width: 300px;
-            height: 300px;
-        }
+        .review-slider { position: relative; overflow: hidden; width: 100%; }
+        .review-container { display: flex; width: max-content; animation: scroll-left 30s linear infinite; }
+        .review-container:hover { animation-play-state: paused; }
 
-        .review-slider {
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
+        .review-card { flex: 0 0 auto; width: 300px; margin-right: 20px; }
 
-        .review-container {
-            display: flex;
-            width: max-content;
-            animation: scroll-left 30s linear infinite;
-        }
+        @keyframes scroll-left { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
 
-        .review-container:hover {
-            animation-play-state: paused;
-        }
+        .star-rating .fa-star { color: #e5e7eb; }
+        .star-rating .fa-star.checked { color: #f59e0b; }
 
-        .review-card {
-            flex: 0 0 auto;
-            width: 300px;
-            margin-right: 20px;
-        }
-
-        @keyframes scroll-left {
-            0% {
-                transform: translateX(0)
-            }
-
-            100% {
-                transform: translateX(-50%)
-            }
-        }
-
-        .star-rating .fa-star {
-            color: #e5e7eb;
-        }
-
-        .star-rating .fa-star.checked {
-            color: #f59e0b;
-        }
-
-        .sticky-cta {
-            position: sticky;
-            top: 20px;
-            z-index: 10;
-        }
-
-        @media (max-width: 767px) {
-            .sticky-cta {
-                position: static;
-            }
-        }
+        .sticky-cta { position: sticky; top: 20px; z-index: 10; }
+        @media (max-width: 767px) { .sticky-cta { position: static; } }
 
         .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 300px;
-            background: rgba(255, 255, 255, .1);
-            backdrop-filter: blur(12px);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, .3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 300px; background: rgba(255, 255, 255, .1); backdrop-filter: blur(12px);
+            border-radius: 1rem; border: 1px solid rgba(255, 255, 255, .3); box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
             padding: 2rem;
         }
-
-        .loading-text {
-            margin-top: 1rem;
-            color: #4b5563;
-            font-size: 1.25rem;
-            font-weight: 500;
-            text-align: center;
-        }
+        .loading-text { margin-top: 1rem; color: #4b5563; font-size: 1.25rem; font-weight: 500; text-align: center; }
     </style>
 </head>
 
@@ -172,7 +102,7 @@
                 messages: [],
                 async init() {
                     const slug = window.location.pathname.split('/').pop();
-            
+
                     try {
                         const response = await fetch(`/api/course-details/${slug}`, {
                             method: 'GET',
@@ -182,17 +112,17 @@
                             }
                         });
                         const result = await response.json();
-            
+
                         if (result.success) {
                             this.course = result.course;
-            
+
                             // Meta & title
                             document.querySelector('meta[name=description]').setAttribute('content', this.course.meta_description || '');
                             document.querySelector('meta[name=keywords]').setAttribute('content', this.course.meta_keywords || '');
                             document.querySelector('meta[name=robots]').setAttribute('content', this.course.robots_meta || '');
                             document.querySelector('link[rel=canonical]').setAttribute('href', this.course.canonical_url || ('/course-details/' + this.course.slug));
                             document.title = this.course.title || 'Course Details';
-            
+
                             // Schema markup (if any)
                             if (this.course.schema_markup) {
                                 const script = document.createElement('script');
@@ -200,29 +130,20 @@
                                 script.text = this.course.schema_markup;
                                 document.head.appendChild(script);
                             }
-            
+
                             // Inject course.description into the iframe
                             const iframeEl = document.getElementById('dbHtml');
                             const html = this.course?.description ?? '';
                             const styledHtml = `
-                                                                    <style>
-                                                        body {
-                                                        font-size: 18px;
-                                                        line-height: 1.6;
-                                                        font-family: Arial, sans-serif;
-                                                        color: #333;
-                                                        }
-                                                        h1, h2, h3 {
-                                                        color: #ff9900; /* match your theme */
-                                                        }
-                                                        ul, ol {
-                                                        padding-left: 1.5rem;
-                                                        }
-                                                    </style>
-                                                                    ${html}
-                                                                `;
+                                <style>
+                                    body { font-size: 18px; line-height: 1.6; font-family: Arial, sans-serif; color: #333; }
+                                    h1, h2, h3 { color: #ff9900; }
+                                    ul, ol { padding-left: 1.5rem; }
+                                </style>
+                                ${html}
+                            `;
                             iframeEl.srcdoc = styledHtml;
-            
+
                             // Auto-resize
                             const resize = () => {
                                 try {
@@ -236,7 +157,24 @@
                                     ro.observe(iframeEl.contentDocument.documentElement);
                                 } catch (_) {}
                             });
-            
+
+                            // --- GA4: view_item (fires once course loaded) ---
+                            window.dataLayer = window.dataLayer || [];
+                            window.dataLayer.push({ ecommerce: null }); // clear previous ecommerce object
+                            window.dataLayer.push({
+                                event: 'view_item',
+                                ecommerce: {
+                                    currency: 'GBP', // change to your currency if needed
+                                    items: [{
+                                        item_id: this.course?.unique_id ?? this.course?.id,
+                                        item_name: this.course?.title ?? '',
+                                        price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+                                        item_category: this.course?.category?.name ?? 'Course',
+                                        quantity: 1
+                                    }]
+                                }
+                            });
+
                         } else {
                             this.addMessage(result.message || 'Course not found.', 'error');
                         }
@@ -244,10 +182,10 @@
                         console.error('Error fetching course:', error);
                         this.addMessage('Failed to load course details. Please try again.', 'error');
                     }
-            
+
                     // Init AOS (now that it's loaded)
                     if (window.AOS) AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
-            
+
                     // Loading animation if course is not set yet
                     if (!this.course) {
                         lottie.loadAnimation({
@@ -273,6 +211,26 @@
                         this.addMessage('No course selected.', 'error');
                         return;
                     }
+
+                    // --- GA4: add_to_cart (fire before redirect) ---
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ ecommerce: null });
+                    window.dataLayer.push({
+                        event: 'add_to_cart',
+                        ecommerce: {
+                            currency: 'GBP', // change if you use a different currency
+                            value: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+                            items: [{
+                                item_id: this.course?.unique_id ?? this.course?.id,
+                                item_name: this.course?.title ?? '',
+                                price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+                                item_category: this.course?.category?.name ?? 'Course',
+                                quantity: 1
+                            }]
+                        }
+                    });
+
+                    // Local cart storage (your existing behavior)
                     const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
                     const newItem = {
                         unique_id: this.course.unique_id ?? this.course.id,
@@ -283,6 +241,7 @@
                     };
                     cartItems.push(newItem);
                     localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
                     this.addMessage('Course added to cart!', 'success');
                     window.location.href = '{{ route('cart') }}';
                 }
@@ -499,10 +458,7 @@
             });
             backTopBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
     </script>
