@@ -154,13 +154,13 @@
                             document.title = this.course.title || 'Course Details';
             
                             // Schema markup (if any)
-                            {{-- if (this.course.schema_markup) {
+                            if (this.course.schema_markup) {
                                 const script = document.createElement('script');
                                 script.type = 'application/ld+json';
                                 script.text = this.course.schema_markup;
                                 document.head.appendChild(script);
                             }
-             --}}
+            
                             // Inject course.description into the iframe
                             const iframeEl = document.getElementById('dbHtml');
                             const html = this.course?.description ?? '';
