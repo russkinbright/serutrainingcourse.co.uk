@@ -69,6 +69,10 @@ Route::get('/pay', function () {
     return view('emails.successPayment');
 });
 
+Route::get('/checkout/success', function () {
+    return view('emails.successPayment');
+})->name('checkout.success');
+
 // Clear Cache
 Route::get('/clear', [ClearController::class, 'clearCache']);
 
