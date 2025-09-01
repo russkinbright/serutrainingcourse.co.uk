@@ -146,8 +146,26 @@
                         this.cartItems = mergedItems;
                         localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
 
-                        // Only view_cart on load (do NOT send add_to_cart here)
+                        // view_cart on load
                         this.pushViewCart();
+
+                        // ONE-TIME add_to_cart handoff from product page (fires exactly once)
+                        const pending = sessionStorage.getItem('ga4_atc');
+                        if (pending) {
+                            try {
+                                const p = JSON.parse(pending);
+                                const payload = [{
+                                    unique_id: p.unique_id ?? p.id,
+                                    title: p.title,
+                                    price: Number(p.price) || 0,
+                                    quantity: Number(p.quantity) || 1,
+                                    category: p.category ?? 'Courses',
+                                    level: p.level ?? 'Default'
+                                }];
+                                this.pushAddToCart(payload);
+                            } catch(e) { /* ignore parse errors */ }
+                            sessionStorage.removeItem('ga4_atc');
+                        }
 
                         AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
                     },

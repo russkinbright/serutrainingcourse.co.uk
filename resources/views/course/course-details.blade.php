@@ -169,13 +169,13 @@
                             const iframeEl = document.getElementById('dbHtml');
                             const html = this.course?.description ?? '';
                             const styledHtml = `
-                                                <style>
-                                                  body{font-size:18px;line-height:1.6;font-family:Arial,sans-serif;color:#333}
-                                                  h1,h2,h3{color:#ff9900}
-                                                  ul,ol{padding-left:1.5rem}
-                                                </style>
-                                                ${html}
-                                            `;
+                                                            <style>
+                                                              body{font-size:18px;line-height:1.6;font-family:Arial,sans-serif;color:#333}
+                                                              h1,h2,h3{color:#ff9900}
+                                                              ul,ol{padding-left:1.5rem}
+                                                            </style>
+                                                            ${html}
+                                                        `;
                             iframeEl.srcdoc = styledHtml;
             
                             const resize = () => {
@@ -216,7 +216,7 @@
                 },
                 // ✅ define as an Alpine method (no 'function' keyword)
                 // replace your pushViewItem with this
-                 pushViewItem(course) {
+                pushViewItem(course) {
                     if (!course) return;
             
                     const id = String(course.unique_id ?? course.id ?? '');
@@ -273,13 +273,29 @@
                         title: this.course.title,
                         price: isNaN(parseFloat(this.course.price)) ? 0 : parseFloat(this.course.price),
                         image: this.course.image ? this.course.image : '/assets/images/default-course.jpg',
-                        quantity: 1
+                        quantity: 1,
+                        category: this.course.category ?? 'Courses',
+                        level: this.course.level ?? 'Default'
                     };
                     cartItems.push(newItem);
                     localStorage.setItem('cartItems', JSON.stringify(cartItems));
                     this.addMessage('Course added to cart!', 'success');
+            
+                    // Hand off a single ATC payload for the cart page to fire exactly once
+                    try {
+                        sessionStorage.setItem('ga4_atc', JSON.stringify({
+                            unique_id: newItem.unique_id,
+                            title: newItem.title,
+                            price: newItem.price,
+                            quantity: newItem.quantity,
+                            category: newItem.category,
+                            level: newItem.level
+                        }));
+                    } catch (e) {}
+            
                     window.location.href = '{{ route('cart') }}';
                 }
+            
             }" x-init="init()">
                 <!-- Messages -->
                 <div class="mb-6" data-aos="fade-up">
