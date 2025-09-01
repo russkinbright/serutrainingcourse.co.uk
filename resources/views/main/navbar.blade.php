@@ -73,7 +73,7 @@
 
             <!-- Right: search + cart + login -->
             <div class="flex items-center space-x-4 sm:space-x-6">
-                <div class="relative group">
+                {{-- <div class="relative group">
                     <input type="text" placeholder="Search..."
                         class="px-5 py-3 bg-purple-900/50 text-white placeholder-purple-300 border border-purple-600/50 rounded-full
                         focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-500
@@ -86,7 +86,7 @@
                                 stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </span>
-                </div>
+                </div> --}}
 
                 <!-- CART / BASKET -->
                 <div class="relative group">
