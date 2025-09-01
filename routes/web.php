@@ -65,6 +65,10 @@ Route::get('/map', function () {
     return view('map.index');
 })->name('map.index');
 
+Route::get('/pay', function () {
+    return view('email.successPayment');
+});
+
 // Clear Cache
 Route::get('/clear', [ClearController::class, 'clearCache']);
 
