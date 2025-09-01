@@ -614,4 +614,4 @@ pollInterval = setInterval(() => fetchUnreadMessageCount(), 30000)" x-on:destroy
             }
         }
     </script>
-</div>
+
