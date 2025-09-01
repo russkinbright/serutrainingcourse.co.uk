@@ -52,7 +52,7 @@
           if (keywords) upsertMeta('name', 'keywords', keywords);
 
           // Robots: only set when provided; otherwise remove to avoid empty content
-          let robots = document.querySelector('meta[name="robots"]');
+          let robots = document.querySelector('meta[name='robots']');
           if (this.course.robots_meta && this.course.robots_meta.trim()) {
             if (!robots) {
               robots = document.createElement('meta');
@@ -69,7 +69,7 @@
             ? new URL(this.course.canonical_url, window.location.origin).href
             : new URL('/course-details/' + this.course.slug, window.location.origin).href;
 
-          let linkCanon = document.querySelector('link[rel="canonical"]');
+          let linkCanon = document.querySelector('link[rel='canonical']');
           if (!linkCanon) {
             linkCanon = document.createElement('link');
             linkCanon.rel = 'canonical';
@@ -99,7 +99,7 @@
             const SCHEMA_ID = 'course-schema-jsonld';
 
             // Clean empty JSON-LD scripts (optional)
-            document.querySelectorAll(`script[type="application/ld+json"]:not(#${SCHEMA_ID})`)
+            document.querySelectorAll(`script[type='application/ld+json']:not(#${SCHEMA_ID})`)
               .forEach(s => { if (!s.textContent?.trim()) s.remove(); });
 
             let schemaEl = document.getElementById(SCHEMA_ID);
