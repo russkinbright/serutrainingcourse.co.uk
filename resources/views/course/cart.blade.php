@@ -112,7 +112,7 @@
                         currency: 'GBP',
                         price: Number(i.price || 0),
                         quantity: Number(i.quantity || 1),
-                        item_brand: 'WiseCampus',
+                        item_brand: 'serutraningcourse',
                         item_category: i.category ?? 'Courses',
                         item_variant: i.level ?? 'Default'
                     }));

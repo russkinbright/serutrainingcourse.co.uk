@@ -35,7 +35,7 @@
                 currency: 'GBP',
                 price: Number(i.price || 0),
                 quantity: Number(i.quantity || 1),
-                item_brand: 'WiseCampus',
+                item_brand: 'serutrainingcourse',
                 item_category: i.category ?? 'Courses',
                 item_variant: i.level ?? 'Default'
             }));
@@ -424,6 +424,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M7.076 2.395A6.563 6.563 0 0112 0h6.666C20.506 0 22 1.492 22 3.332v17.336C22 22.508 20.508 24 18.668 24H5.332C3.492 24 2 22.508 2 20.668V8.666h2v12.002c0 .736.596 1.332 1.332 1.332h13.336c.736 0 1.332-.596 1.332-1.332V3.332c0-.736-.596-1.332-1.332-1.332H12c-1.404 0-2.668.573-3.58 1.495l-.344.4H6.666C5.194 4 4 5.194 4 6.666v2H2v-2C2 4.086 4.086 2 6.666 2h.41z" />
+                                </svg>
                             </div>
                         </div>
                     </div>
