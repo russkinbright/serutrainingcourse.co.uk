@@ -1,7 +1,9 @@
 @extends('home.default')
-
+@section('content')
     <style>
-        [x-cloak] { display: none; }
+        [x-cloak] {
+            display: none;
+        }
 
         .glassmorphic {
             background: rgba(255, 255, 255, 0.1);
@@ -10,40 +12,111 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        .card-hover { transition: transform .3s ease, box-shadow .3s ease; }
-        .card-hover:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
+        .card-hover {
+            transition: transform .3s ease, box-shadow .3s ease;
+        }
 
-        .btn-pulse { position: relative; overflow: hidden; }
+        .card-hover:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-pulse {
+            position: relative;
+            overflow: hidden;
+        }
+
         .btn-pulse::after {
             content: '';
-            position: absolute; top: 50%; left: 50%;
-            width: 0; height: 0; background: rgba(255, 255, 255, .3);
-            border-radius: 50%; transform: translate(-50%, -50%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
             transition: width .5s ease, height .5s ease;
         }
-        .btn-pulse:hover::after { width: 300px; height: 300px; }
 
-        .review-slider { position: relative; overflow: hidden; width: 100%; }
-        .review-container { display: flex; width: max-content; animation: scroll-left 30s linear infinite; }
-        .review-container:hover { animation-play-state: paused; }
+        .btn-pulse:hover::after {
+            width: 300px;
+            height: 300px;
+        }
 
-        .review-card { flex: 0 0 auto; width: 300px; margin-right: 20px; }
+        .review-slider {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
 
-        @keyframes scroll-left { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
+        .review-container {
+            display: flex;
+            width: max-content;
+            animation: scroll-left 30s linear infinite;
+        }
 
-        .star-rating .fa-star { color: #e5e7eb; }
-        .star-rating .fa-star.checked { color: #f59e0b; }
+        .review-container:hover {
+            animation-play-state: paused;
+        }
 
-        .sticky-cta { position: sticky; top: 20px; z-index: 10; }
-        @media (max-width: 767px) { .sticky-cta { position: static; } }
+        .review-card {
+            flex: 0 0 auto;
+            width: 300px;
+            margin-right: 20px;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0)
+            }
+
+            100% {
+                transform: translateX(-50%)
+            }
+        }
+
+        .star-rating .fa-star {
+            color: #e5e7eb;
+        }
+
+        .star-rating .fa-star.checked {
+            color: #f59e0b;
+        }
+
+        .sticky-cta {
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        @media (max-width: 767px) {
+            .sticky-cta {
+                position: static;
+            }
+        }
 
         .loading-container {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 300px; background: rgba(255, 255, 255, .1); backdrop-filter: blur(12px);
-            border-radius: 1rem; border: 1px solid rgba(255, 255, 255, .3); box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            background: rgba(255, 255, 255, .1);
+            backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, .3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
             padding: 2rem;
         }
-        .loading-text { margin-top: 1rem; color: #4b5563; font-size: 1.25rem; font-weight: 500; text-align: center; }
+
+        .loading-text {
+            margin-top: 1rem;
+            color: #4b5563;
+            font-size: 1.25rem;
+            font-weight: 500;
+            text-align: center;
+        }
     </style>
 
     <header
@@ -59,7 +132,7 @@
                 messages: [],
                 async init() {
                     const slug = window.location.pathname.split('/').pop();
-
+            
                     try {
                         const response = await fetch(`/api/course-details/${slug}`, {
                             method: 'GET',
@@ -69,80 +142,47 @@
                             }
                         });
                         const result = await response.json();
-
+            
                         if (result.success) {
                             this.course = result.course;
-
-                            // --- Meta & title ---
+            
+                            // Meta & title
+                            document.querySelector('meta[name=description]').setAttribute('content', this.course.meta_description || '');
+                            document.querySelector('meta[name=keywords]').setAttribute('content', this.course.meta_keywords || '');
+                            document.querySelector('meta[name=robots]').setAttribute('content', this.course.robots_meta || '');
+                            document.querySelector('link[rel=canonical]').setAttribute('href', this.course.canonical_url || ('/course-details/' + this.course.slug));
                             document.title = this.course.title || 'Course Details';
-                            const desc = this.course.meta_description || '';
-                            const keywords = this.course.meta_keywords || '';
-
-                            const upsertMeta = (attr, key, val) => {
-                                let el = document.head.querySelector(`meta[${attr}='${key}']`);
-                                if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el); }
-                                el.setAttribute('content', val ?? '');
-                            };
-
-                            upsertMeta('name', 'description', desc);
-                            if (keywords) upsertMeta('name', 'keywords', keywords);
-
-                            // Robots: set only when non-empty, else remove to avoid empty content=''
-                            let robots = document.querySelector('meta[name='robots']');
-                            if (this.course.robots_meta && this.course.robots_meta.trim()) {
-                                if (!robots) { robots = document.createElement('meta'); robots.setAttribute('name', 'robots'); document.head.appendChild(robots); }
-                                robots.setAttribute('content', this.course.robots_meta.trim());
-                            } else if (robots) {
-                                robots.remove();
-                            }
-
-                            // Canonical: absolute URL
-                            const canonicalUrl = this.course.canonical_url
-                                ? new URL(this.course.canonical_url, window.location.origin).href
-                                : new URL('/course-details/' + this.course.slug, window.location.origin).href;
-
-                            let linkCanon = document.querySelector('link[rel='canonical']');
-                            if (!linkCanon) { linkCanon = document.createElement('link'); linkCanon.rel = 'canonical'; document.head.appendChild(linkCanon); }
-                            linkCanon.setAttribute('href', canonicalUrl);
-
-                            // --- Schema markup (single instance, no duplicates) ---
+            
+                            // Schema markup (if any)
                             if (this.course.schema_markup) {
-                                const SCHEMA_ID = 'course-schema-jsonld';
-
-                                // Remove *empty* JSON-LD scripts left by other libs (keep non-empty ones)
-                                document.querySelectorAll(`script[type='application/ld+json']:not(#${SCHEMA_ID})`)
-                                    .forEach(s => { if (!(s.textContent || '').trim()) s.remove(); });
-
-                                let schemaEl = document.getElementById(SCHEMA_ID);
-                                if (!schemaEl) {
-                                    schemaEl = document.createElement('script');
-                                    schemaEl.type = 'application/ld+json';
-                                    schemaEl.id = SCHEMA_ID;
-                                    document.head.appendChild(schemaEl);
-                                }
-                                try {
-                                    const payload = (typeof this.course.schema_markup === 'string')
-                                        ? this.course.schema_markup
-                                        : JSON.stringify(this.course.schema_markup);
-                                    schemaEl.text = payload;
-                                } catch (e) {
-                                    console.warn('Invalid schema_markup JSON', e);
-                                }
+                                const script = document.createElement('script');
+                                script.type = 'application/ld+json';
+                                script.text = this.course.schema_markup;
+                                document.head.appendChild(script);
                             }
-
-                            // Inject course.description into iframe
+            
+                            // Inject course.description into the iframe
                             const iframeEl = document.getElementById('dbHtml');
                             const html = this.course?.description ?? '';
                             const styledHtml = `
-                                <style>
-                                    body { font-size: 18px; line-height: 1.6; font-family: Arial, sans-serif; color: #333; }
-                                    h1, h2, h3 { color: #ff9900; /* match your theme */ }
-                                    ul, ol { padding-left: 1.5rem; }
-                                </style>
-                                ${html}
-                            `;
+                                                                                <style>
+                                                                    body {
+                                                                    font-size: 18px;
+                                                                    line-height: 1.6;
+                                                                    font-family: Arial, sans-serif;
+                                                                    color: #333;
+                                                                    }
+                                                                    h1, h2, h3 {
+                                                                    color: #ff9900; /* match your theme */
+                                                                    }
+                                                                    ul, ol {
+                                                                    padding-left: 1.5rem;
+                                                                    }
+                                                                </style>
+                                                                                ${html}
+                                                                            `;
                             iframeEl.srcdoc = styledHtml;
-
+            
                             // Auto-resize
                             const resize = () => {
                                 try {
@@ -156,7 +196,7 @@
                                     ro.observe(iframeEl.contentDocument.documentElement);
                                 } catch (_) {}
                             });
-
+            
                         } else {
                             this.addMessage(result.message || 'Course not found.', 'error');
                         }
@@ -164,10 +204,10 @@
                         console.error('Error fetching course:', error);
                         this.addMessage('Failed to load course details. Please try again.', 'error');
                     }
-
+            
                     // Init AOS (now that it's loaded)
                     if (window.AOS) AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
-
+            
                     // Loading animation if course is not set yet
                     if (!this.course) {
                         lottie.loadAnimation({
@@ -178,6 +218,7 @@
                             path: 'https://assets4.lottiefiles.com/packages/lf20_44rltw5h.json'
                         });
                     }
+            
                 },
                 addMessage(text, type) {
                     const id = Date.now();
@@ -350,6 +391,51 @@
                                 <p class="text-gray-700">"Great course, but could use more interactive elements."</p>
                                 <p class="mt-2 text-gray-500 font-semibold">— Emily R.</p>
                             </div>
+
+                            <!-- Duplicates for loop effect -->
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
+                                data-aos="fade-right">
+                                <div class="flex items-center mb-2">
+                                    <div class="star-rating flex">
+                                        <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star"></i>
+                                    </div>
+                                    <span class="ml-2 text-gray-600">4.0</span>
+                                </div>
+                                <p class="text-gray-700">"This course was a game-changer! The content was engaging and
+                                    well-structured."</p>
+                                <p class="mt-2 text-gray-500 font-semibold">— Sarah J.</p>
+                            </div>
+
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
+                                data-aos="fade-right" data-aos-delay="100">
+                                <div class="flex items-center mb-2">
+                                    <div class="star-rating flex">
+                                        <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star checked"></i>
+                                    </div>
+                                    <span class="ml-2 text-gray-600">5.0</span>
+                                </div>
+                                <p class="text-gray-700">"Absolutely loved the practical approach. Highly recommend!"
+                                </p>
+                                <p class="mt-2 text-gray-500 font-semibold">— Michael T.</p>
+                            </div>
+
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
+                                data-aos="fade-right" data-aos-delay="200">
+                                <div class="flex items-center mb-2">
+                                    <div class="star-rating flex">
+                                        <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                                            class="fas fa-star-half-alt checked"></i>
+                                    </div>
+                                    <span class="ml-2 text-gray-600">4.5</span>
+                                </div>
+                                <p class="text-gray-700">"Great course, but could use more interactive elements."</p>
+                                <p class="mt-2 text-gray-500 font-semibold">— Emily R.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -374,7 +460,10 @@
             });
             backTopBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             });
         });
     </script>
@@ -388,4 +477,4 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
         </svg>
     </a>
-
+@endsection
