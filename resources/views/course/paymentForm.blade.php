@@ -500,11 +500,11 @@
                 </div>
             </div>
 
-            <!-- Modals & footer -->
+            {{-- <!-- Modals & footer -->
             <div x-show="showBillingModal"
                 class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                 @include('learner.billingModal') {{-- keep your modal content as-is (shortened here) --}}
-            </div>
+            </div> --}}
 
             <div x-show="showTermsModal"
                 class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
