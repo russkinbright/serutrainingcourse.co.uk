@@ -202,11 +202,11 @@ class PaymentFormController extends Controller
                         Log::error('Other payment email failed: '.$mailEx->getMessage());
                     }
 
+                    return view('emails.successPayment');
+
                     DB::commit();
 
-                    // frontend will show “Purchase successfully completed!” and clear cart
-                    return view('emails.successPayment');
-                    
+        
                 } catch (\Throwable $tx) {
                     DB::rollBack();
                     Log::error('Other payment tx error: '.$tx->getMessage());
