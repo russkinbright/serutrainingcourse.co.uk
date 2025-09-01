@@ -1,5 +1,7 @@
 @extends('home.default')
 
+
+@section('content')
     {{-- IMPORTANT: No Tailwind @apply or @keyframes here to avoid Blade parsing errors --}}
     <style>
         [x-cloak] { display: none; }
@@ -48,7 +50,7 @@
     </style>
 </head>
 
-<body class="font-sans">
+
     <header
         class="fixed top-0 left-0 w-full bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg z-20 transition-all duration-300"
         data-header>
@@ -432,6 +434,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
         </svg>
     </a>
-</body>
+@endsection
 
-</html>
+
