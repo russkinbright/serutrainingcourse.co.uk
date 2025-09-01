@@ -206,36 +206,37 @@ class PaymentFormController extends Controller
 
                     // frontend will show “Purchase successfully completed!” and clear cart
                  return response()->json([
-                    'success' => true,
-                    'html' => view('emails.successPayment', [
-                        'gtmPurchase' => [
-                            'transaction_id' => $paymentUniqueId, // your order id (stable, not PI id)
-                            'value'         => (float) $total,    // final paid £
-                            'currency'      => 'GBP',
-                            'affiliation'   => 'Seru Training Course',
-                            'coupon'        => $couponCode ?? null,
-                            'items' => collect($cartItems)->map(fn($i) => [
-                                'item_id'      => (string)($i['unique_id'] ?? $i['id']),
-                                'item_name'    => $i['name'] ?? $i['title'] ?? 'Course',
-                                'price'        => (float)$i['price'],
-                                'quantity'     => (int)$i['quantity'],
-                                'item_brand'   => 'serutrainingcourse',
-                                'item_category'=> $i['category'] ?? 'Courses',
-                                'item_variant' => $i['level'] ?? 'Default',
-                            ])->values(),
-                            'customer' => [
-                                'full_name'  => $billing['fullName'] ?? null,
-                                'email'      => $billing['email'] ?? null,
-                                'phone'      => $billing['phone'] ?? null,
-                                'country'    => $billing['country'] ?? null,
-                                'city'       => $billing['city'] ?? null,
-                                'postalCode' => $billing['postalCode'] ?? null,
-                                'address'    => $billing['address'] ?? null,
-                                'whom'       => $billing['whom'] ?? null,
-                            ]
-                        ]
-                    ])->render()
-                ]);
+    'success' => true,
+    'html' => view('emails.successPayment', [
+        'gtmPurchase' => [
+            'transaction_id' => $paymentUniqueId, // your order id (stable, not PI id)
+            'value'         => (float) $data['total'],    // final paid £
+            'currency'      => 'GBP',
+            'affiliation'   => 'Seru Training Course',
+            'coupon'        => $data['couponCode'] ?? null, // only if couponCode is sent in request
+            'items' => collect($data['cartItems'])->map(fn($i) => [
+                'item_id'      => (string)($i['unique_id'] ?? $i['id']),
+                'item_name'    => $i['name'] ?? $i['title'] ?? 'Course',
+                'price'        => (float)$i['price'],
+                'quantity'     => (int)$i['quantity'],
+                'item_brand'   => 'serutrainingcourse',
+                'item_category'=> $i['category'] ?? 'Courses',
+                'item_variant' => $i['level'] ?? 'Default',
+            ])->values(),
+            'customer' => [
+                'full_name'  => $data['billing']['fullName'] ?? null,
+                'email'      => $data['billing']['email'] ?? null,
+                'phone'      => $data['billing']['phone'] ?? null,
+                'country'    => $data['billing']['country'] ?? null,
+                'city'       => $data['billing']['city'] ?? null,
+                'postalCode' => $data['billing']['postalCode'] ?? null,
+                'address'    => $data['billing']['address'] ?? null,
+                'whom'       => $data['billing']['whom'] ?? null,
+            ]
+        ]
+    ])->render()
+]);
+
 
                 } catch (\Throwable $tx) {
                     DB::rollBack();
