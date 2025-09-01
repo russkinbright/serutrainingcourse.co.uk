@@ -59,7 +59,7 @@ class PaymentFormController extends Controller
             }
 
             // === PayPal path (custom handling) ===
-            if ($data['paymentMethod'] === 'paypal' || $data['paymentMethod'] === 'other') {
+            if ($data['paymentMethod'] === 'paypal' ){
                 // Validate & recompute total
                 $calcTotal = 0;
                 foreach ($data['cartItems'] as $item) {
