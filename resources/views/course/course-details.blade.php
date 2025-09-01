@@ -165,22 +165,22 @@
                             const iframeEl = document.getElementById('dbHtml');
                             const html = this.course?.description ?? '';
                             const styledHtml = `
-                                                                                <style>
-                                                                    body {
-                                                                    font-size: 18px;
-                                                                    line-height: 1.6;
-                                                                    font-family: Arial, sans-serif;
-                                                                    color: #333;
-                                                                    }
-                                                                    h1, h2, h3 {
-                                                                    color: #ff9900; /* match your theme */
-                                                                    }
-                                                                    ul, ol {
-                                                                    padding-left: 1.5rem;
-                                                                    }
-                                                                </style>
-                                                                                ${html}
-                                                                            `;
+                                                                                            <style>
+                                                                                body {
+                                                                                font-size: 18px;
+                                                                                line-height: 1.6;
+                                                                                font-family: Arial, sans-serif;
+                                                                                color: #333;
+                                                                                }
+                                                                                h1, h2, h3 {
+                                                                                color: #ff9900; /* match your theme */
+                                                                                }
+                                                                                ul, ol {
+                                                                                padding-left: 1.5rem;
+                                                                                }
+                                                                            </style>
+                                                                                            ${html}
+                                                                                        `;
                             iframeEl.srcdoc = styledHtml;
             
                             // Auto-resize
@@ -196,6 +196,9 @@
                                     ro.observe(iframeEl.contentDocument.documentElement);
                                 } catch (_) {}
                             });
+            
+                            // Fire view_item event
+                            pushViewItem(this.course);
             
                         } else {
                             this.addMessage(result.message || 'Course not found.', 'error');
@@ -219,6 +222,29 @@
                         });
                     }
             
+                },
+            
+                function pushViewItem(course) {
+                    if (!course) return;
+            
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                        event: 'view_item',
+                        ecommerce: {
+                            currency: 'GBP',
+                            value: parseFloat(course.price) || 0,
+                            items: [{
+                                item_id: course.unique_id ?? course.id,
+                                item_name: course.title,
+                                price: parseFloat(course.price) || 0,
+                                currency: 'GBP',
+                                item_category: course.category ?? 'Courses',
+                                item_brand: 'WiseCampus',
+                                item_variant: course.level ?? 'Default'
+                            }]
+                        }
+                    });
+                    console.log('view_item pushed', course);
                 },
                 addMessage(text, type) {
                     const id = Date.now();
@@ -348,8 +374,7 @@
                     </h2>
                     <div class="review-slider">
                         <div class="review-container">
-                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
-                                data-aos="fade-right">
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right">
                                 <div class="flex items-center mb-2">
                                     <div class="star-rating flex">
                                         <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
@@ -363,8 +388,8 @@
                                 <p class="mt-2 text-gray-500 font-semibold">— Sarah J.</p>
                             </div>
 
-                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
-                                data-aos="fade-right" data-aos-delay="100">
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right"
+                                data-aos-delay="100">
                                 <div class="flex items-center mb-2">
                                     <div class="star-rating flex">
                                         <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
@@ -378,8 +403,8 @@
                                 <p class="mt-2 text-gray-500 font-semibold">— Michael T.</p>
                             </div>
 
-                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover"
-                                data-aos="fade-right" data-aos-delay="200">
+                            <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right"
+                                data-aos-delay="200">
                                 <div class="flex items-center mb-2">
                                     <div class="star-rating flex">
                                         <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
