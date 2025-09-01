@@ -216,7 +216,7 @@
                 },
                 // ✅ define as an Alpine method (no 'function' keyword)
                 // replace your pushViewItem with this
-                pushViewItem(course) {
+                 pushViewItem(course) {
                     if (!course) return;
             
                     const id = String(course.unique_id ?? course.id ?? '');
