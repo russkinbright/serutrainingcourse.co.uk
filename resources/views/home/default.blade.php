@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
@@ -21,43 +21,87 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-  {{-- Initialize dataLayer BEFORE GTM --}}
-  <script>window.dataLayer = window.dataLayer || [];</script>
+    {{-- ADDED: initialize dataLayer before GTM --}}
+    <script>window.dataLayer = window.dataLayer || [];</script>
 
-  <!-- Google Tag Manager -->
-  <script>
-    (function(w,d,s,l,i){w[l]=w[l]||[];
-      w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-      var f=d.getElementsByTagName(s)[0], j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
-      j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-      f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-NXQZKWMH');
-  </script>
-  <!-- End Google Tag Manager -->
-  ...
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-NXQZKWMH');
+    </script>
+    <!-- End Google Tag Manager -->
+
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=1036396911776364&ev=PageView&noscript=1" /></noscript>
+
+    {{-- Font-awesome --}}
+    <script src="https://kit.fontawesome.com/69ba9af9da.js" crossorigin="anonymous"></script>
+
+    <!-- lottie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+    <!-- PDF.js v2.16.105 only -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+
+    {{-- Line Chart --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Charts links -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        #messageContainer { background-color: rgba(0, 0, 0, 0.5); }
+        #message { animation: fadeInOut 2.5s ease-in-out; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; } 10% { opacity: 1; }
+            90% { opacity: 1; } 100% { opacity: 0; }
+        }
+        .move { transform: translateX(140%); }
+    </style>
 </head>
+
 <body id="top">
-  <!-- Google Tag Manager (noscript) -->
-  <noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXQZKWMH" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-  </noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    {{-- ADDED: GTM noscript (recommended placement) --}}
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXQZKWMH"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
 
-  @yield('content')
+    @yield('content')
 
-  {{-- Place all page-level pushes here --}}
-  @stack('scripts')
-
-  {!! $tawkScript ?? '' !!}
-  <!--Start of Tawk.to Script-->
-  <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-      var s1=document.createElement("script"), s0=document.getElementsByTagName("script")[0];
-      s1.async=true; s1.src='https://embed.tawk.to/689b181ce0fd9f192a112a9f/1j2etcc7s';
-      s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0);
-    })();
-  </script>
-  <!--End of Tawk.to Script-->
+    {{-- ADDED: place for page-specific scripts --}}
+    @stack('scripts')
 </body>
-</html>
+
+{!! $tawkScript ?? '' !!}
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {},
+        Tawk_LoadStart = new Date();
+    (function() {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/689b181ce0fd9f192a112a9f/1j2etcc7s';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
+</script>
+<!--End of Tawk.to Script-->
