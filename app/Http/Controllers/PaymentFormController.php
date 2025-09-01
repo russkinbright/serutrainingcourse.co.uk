@@ -206,9 +206,9 @@ class PaymentFormController extends Controller
 
                     // frontend will show “Purchase successfully completed!” and clear cart
                     return response()->json([
-                        'success' => true,
-                        'message' => 'Purchase successfully completed'
-                    ]);
+                'success' => true,
+                'redirect_url' => route('checkout.success') // 👈 send success page URL
+            ]);
                 } catch (\Throwable $tx) {
                     DB::rollBack();
                     Log::error('Other payment tx error: '.$tx->getMessage());
@@ -220,10 +220,7 @@ class PaymentFormController extends Controller
             }
 
             // Fallback
-            return response()->json([
-                'success' => true,
-                'redirect_url' => route('checkout.success') // 👈 send success page URL
-            ]);
+            return response()->json(['success' => true, 'message' => 'Payment processed successfully']);
 
         } catch (ValidationException $e) { // ✅ this now resolves
             Log::error('Validation failed:', ['errors' => $e->errors(), 'input' => $request->all()]);
