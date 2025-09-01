@@ -33,9 +33,8 @@
                     cartItems: [],
                     messages: [],
 
-                    // === GA4 helpers (GTM reads these via dataLayer) =========================
+                    /* ---------- GA4 helpers (read by GTM) ---------- */
                     ga4Items(items){
-                        // map cart items -> GA4 item schema
                         return (items || []).map(i => ({
                             item_id: String(i.unique_id ?? i.id ?? ''),
                             item_name: i.title ?? 'Course',
@@ -53,56 +52,82 @@
                     pushViewCart(){
                         if(!this.cartItems.length) return;
                         window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({ ecommerce: null });
                         window.dataLayer.push({
                             event: 'view_cart',
+                            event_id: 'vc-' + Date.now(),
                             ecommerce: {
                                 currency: 'GBP',
                                 value: this.ga4Total(this.cartItems),
                                 items: this.ga4Items(this.cartItems)
                             }
                         });
-                        // console.log('GA4 view_cart');
                     },
                     pushAddToCart(items){
                         if(!items || !items.length) return;
+
+                        // one-time guard per unique payload
+                        const sig = JSON.stringify(items.map(i => ({
+                            id: String(i.unique_id ?? i.id ?? ''),
+                            q: Number(i.quantity || 1),
+                            p: Number(i.price || 0)
+                        })));
+                        window.__atcSentSigs = window.__atcSentSigs || new Set();
+                        if (window.__atcSentSigs.has(sig)) return;
+                        window.__atcSentSigs.add(sig);
+
                         window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({ ecommerce: null });
                         window.dataLayer.push({
                             event: 'add_to_cart',
+                            event_id: 'atc-' + Date.now(),
                             ecommerce: {
                                 currency: 'GBP',
                                 value: this.ga4Total(items),
                                 items: this.ga4Items(items)
                             }
                         });
-                        // console.log('GA4 add_to_cart', items);
                     },
                     pushRemoveFromCart(items){
                         if(!items || !items.length) return;
+
+                        // guard to avoid duplicates
+                        const sig = 'rm-' + JSON.stringify(items.map(i => ({
+                            id: String(i.unique_id ?? i.id ?? ''),
+                            q: Number(i.quantity || 1),
+                            p: Number(i.price || 0)
+                        })));
+                        window.__rmcSentSigs = window.__rmcSentSigs || new Set();
+                        if (window.__rmcSentSigs.has(sig)) return;
+                        window.__rmcSentSigs.add(sig);
+
                         window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({ ecommerce: null });
                         window.dataLayer.push({
                             event: 'remove_from_cart',
+                            event_id: 'rmc-' + Date.now(),
                             ecommerce: {
                                 currency: 'GBP',
                                 value: this.ga4Total(items),
                                 items: this.ga4Items(items)
                             }
                         });
-                        // console.log('GA4 remove_from_cart', items);
                     },
                     pushBeginCheckout(){
                         if(!this.cartItems.length) return;
                         window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({ ecommerce: null });
                         window.dataLayer.push({
                             event: 'begin_checkout',
+                            event_id: 'bc-' + Date.now(),
                             ecommerce: {
                                 currency: 'GBP',
                                 value: this.ga4Total(this.cartItems),
                                 items: this.ga4Items(this.cartItems)
                             }
                         });
-                        // console.log('GA4 begin_checkout');
                     },
-                    // ========================================================================
+                    /* ------------------------------------------------ */
 
                     init() {
                         const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
@@ -110,9 +135,9 @@
                         // merge duplicates
                         const mergedItems = [];
                         storedItems.forEach(item => {
-                            const existingItem = mergedItems.find(i => (i.unique_id ?? i.id) === (item.unique_id ?? item.id));
-                            if (existingItem) {
-                                existingItem.quantity = (existingItem.quantity || 1) + (item.quantity || 1);
+                            const existing = mergedItems.find(i => (i.unique_id ?? i.id) === (item.unique_id ?? item.id));
+                            if (existing) {
+                                existing.quantity = (existing.quantity || 1) + (item.quantity || 1);
                             } else {
                                 mergedItems.push({ ...item, quantity: item.quantity || 1 });
                             }
@@ -121,13 +146,8 @@
                         this.cartItems = mergedItems;
                         localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
 
-                        // === GA4: fire view_cart for the whole basket on page load
+                        // Only view_cart on load (do NOT send add_to_cart here)
                         this.pushViewCart();
-
-                        // === GA4: also send add_to_cart for current items (common when landing here after adding)
-                        if (this.cartItems.length){
-                            this.pushAddToCart(this.cartItems);
-                        }
 
                         AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
                     },
@@ -149,12 +169,11 @@
                             newQty = 1;
                         }
 
-                        // === GA4: send diff as add_to_cart or remove_from_cart
+                        // Send only the delta as add/remove
                         const diff = newQty - oldQty;
                         if (diff !== 0) {
                             const base = { ...this.cartItems[index] };
                             const payload = [{ ...base, quantity: Math.abs(diff) }];
-
                             if (diff > 0) this.pushAddToCart(payload);
                             else this.pushRemoveFromCart(payload);
                         }
@@ -166,19 +185,14 @@
 
                     removeItem(index) {
                         const item = this.cartItems[index];
-
-                        // === GA4: remove entire item with its current quantity
-                        this.pushRemoveFromCart([{ ...item }]);
-
+                        this.pushRemoveFromCart([{ ...item }]); // remove full qty
                         this.cartItems.splice(index, 1);
                         localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
                         this.addMessage('Item removed from cart!', 'success');
                     },
 
                     clearCart() {
-                        // === GA4: remove all items currently in cart
                         if (this.cartItems.length) this.pushRemoveFromCart(this.cartItems);
-
                         this.cartItems = [];
                         localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
                         this.addMessage('Cart cleared!', 'success');
@@ -189,7 +203,6 @@
                     },
 
                     checkout() {
-                        // === GA4: begin_checkout before redirect
                         this.pushBeginCheckout();
                         window.location.href = '{{ route('learner.payment') }}';
                     }
@@ -358,13 +371,12 @@
         @include('main.footer')
     </main>
 
-    <!-- Back to Top JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const backTopBtn = document.getElementById('backToTopBtn');
             window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) backTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                else backTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                if (window.scrollY > 300) backTopBtn.classList.remove('opacity-0','pointer-events-none');
+                else backTopBtn.classList.add('opacity-0','pointer-events-none');
             });
             backTopBtn.addEventListener('click', (e) => {
                 e.preventDefault();
