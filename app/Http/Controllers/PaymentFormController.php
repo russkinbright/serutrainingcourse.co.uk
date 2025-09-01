@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException; // ✅ import this
+use Illuminate\Validation\ValidationException;
 
 use App\Models\Course;
 use App\Models\Payment;
@@ -33,7 +33,6 @@ class PaymentFormController extends Controller
                 'cartItems.*.name' => 'required|string',
                 'cartItems.*.price' => 'required|numeric|min:0',
                 'cartItems.*.quantity' => 'required|integer|min:1',
-                // Was numeric; allow string or int IDs
                 'cartItems.*.unique_id' => 'required',
                 'paymentMethod' => 'required|in:card,paypal,other',
                 'billing' => 'required|array',
@@ -46,63 +45,40 @@ class PaymentFormController extends Controller
                 'billing.city' => 'required|string',
                 'billing.postalCode' => 'required|string',
                 'billing.message' => 'nullable|string',
+                'couponCode' => 'nullable|string',
                 'total' => 'required|numeric|min:0'
             ]);
 
-            // === Stripe path (unchanged) ===
+            // === Stripe path ===
             if ($data['paymentMethod'] === 'card') {
                 Session::put('stripe_cart', $data['cartItems']);
                 Session::put('stripe_billing', $data['billing']);
                 Session::put('stripe_total', $data['total']);
 
-                return response()->json([
-                    'success' => true,
-                    'redirect_url' => route('stripe.payment')
-                ]);
+                return redirect()->route('stripe.payment');
             }
 
-            // === PayPal path (unchanged) ===
-            // if ($data['paymentMethod'] === 'paypal') {
-            //     Session::put('paypal_cart', $data['cartItems']);
-            //     Session::put('paypal_billing', $data['billing']);
-            //     Session::put('paypal_total', $data['total']);
-
-            //     return response()->json([
-            //         'success' => true,
-            //         'redirect_url' => route('paypal.create', ['amount' => $data['total']])
-            //     ]);
-            // }
-
-            // === OTHER payment: auto-complete locally ===
-            if ($data['paymentMethod'] === 'paypal') {
-                // 1) Validate against DB & recompute total
+            // === PayPal path (custom handling) ===
+            if ($data['paymentMethod'] === 'paypal' || $data['paymentMethod'] === 'other') {
+                // Validate & recompute total
                 $calcTotal = 0;
                 foreach ($data['cartItems'] as $item) {
                     $course = Course::where('unique_id', $item['unique_id'])->first();
                     if (!$course) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Course not found: '.$item['name']
-                        ], 422);
+                        return back()->withErrors(['Course not found: '.$item['name']]);
                     }
                     if ((float)$course->price !== (float)$item['price']) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Course price mismatch for '.$item['name']
-                        ], 422);
+                        return back()->withErrors(['Course price mismatch for '.$item['name']]);
                     }
                     $calcTotal += ((float)$item['price']) * (int)$item['quantity'];
                 }
                 if (abs($calcTotal - (float)$data['total']) > 0.01) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Total amount mismatch.'
-                    ], 422);
+                    return back()->withErrors(['Total amount mismatch.']);
                 }
 
                 DB::beginTransaction();
                 try {
-                    // 2) Find or create learner
+                    // Find or create learner
                     $existing = Learner::where('email', $data['billing']['email'])->first();
                     $plainPassword = null;
 
@@ -119,7 +95,7 @@ class PaymentFormController extends Controller
                             'secret_id'    => $secret,
                             'name'         => $data['billing']['fullName'],
                             'email'        => $data['billing']['email'],
-                            'payment_type' => 'other',
+                            'payment_type' => $data['paymentMethod'],
                             'whom'         => $data['billing']['whom'],
                             'phone'        => $data['billing']['phone'],
                             'message'      => $data['billing']['message'] ?? null,
@@ -133,9 +109,9 @@ class PaymentFormController extends Controller
                         $learnerSecretId = $newLearner->secret_id;
                     }
 
-                    // 3) Create payments + course progress + activity
+                    // Payment + CourseProgress + Activity
                     $paymentUniqueId = $this->generateUniquePaymentId();
-                    $txnId = 'OTHER-'.now()->format('YmdHis').'-'.Str::upper(Str::random(6));
+                    $txnId = strtoupper($data['paymentMethod']).'-'.now()->format('YmdHis').'-'.Str::upper(Str::random(6));
 
                     foreach ($data['cartItems'] as $item) {
                         $course = Course::where('unique_id', $item['unique_id'])->first();
@@ -150,7 +126,7 @@ class PaymentFormController extends Controller
                             'address'           => $data['billing']['address'],
                             'postal_code'       => $data['billing']['postalCode'],
                             'country'           => $data['billing']['country'],
-                            'payment_type'      => 'other',
+                            'payment_type'      => $data['paymentMethod'],
                             'course_unique_id'  => $item['unique_id'],
                             'whom'              => $data['billing']['whom'],
                             'quantity'          => (int) $item['quantity'],
@@ -162,7 +138,6 @@ class PaymentFormController extends Controller
                             'transaction_id'    => $txnId,
                         ]);
 
-                        // expiry from course duration like "8 weeks"
                         $expireAt = now();
                         if ($course && preg_match('/(\d+)\s*week/i', $course->duration, $m)) {
                             $expireAt = now()->addWeeks((int) $m[1]);
@@ -194,77 +169,61 @@ class PaymentFormController extends Controller
                         ]);
                     }
 
-                    // 4) Email confirmation (best-effort)
+                    // Email confirmation
                     try {
                         Mail::to($data['billing']['email'])
                             ->send(new PaymentConfirmationMail($data['billing'], $data['cartItems'], $plainPassword));
                     } catch (\Throwable $mailEx) {
-                        Log::error('Other payment email failed: '.$mailEx->getMessage());
+                        Log::error('Payment email failed: '.$mailEx->getMessage());
                     }
 
                     DB::commit();
 
-                    // frontend will show “Purchase successfully completed!” and clear cart
-                 return response()->json([
-    'success' => true,
-    'html' => view('emails.successPayment', [
-        'gtmPurchase' => [
-            'transaction_id' => $paymentUniqueId, // your order id (stable, not PI id)
-            'value'         => (float) $data['total'],    // final paid £
-            'currency'      => 'GBP',
-            'affiliation'   => 'Seru Training Course',
-            'coupon'        => $data['couponCode'] ?? null, // only if couponCode is sent in request
-            'items' => collect($data['cartItems'])->map(fn($i) => [
-                'item_id'      => (string)($i['unique_id'] ?? $i['id']),
-                'item_name'    => $i['name'] ?? $i['title'] ?? 'Course',
-                'price'        => (float)$i['price'],
-                'quantity'     => (int)$i['quantity'],
-                'item_brand'   => 'serutrainingcourse',
-                'item_category'=> $i['category'] ?? 'Courses',
-                'item_variant' => $i['level'] ?? 'Default',
-            ])->values(),
-            'customer' => [
-                'full_name'  => $data['billing']['fullName'] ?? null,
-                'email'      => $data['billing']['email'] ?? null,
-                'phone'      => $data['billing']['phone'] ?? null,
-                'country'    => $data['billing']['country'] ?? null,
-                'city'       => $data['billing']['city'] ?? null,
-                'postalCode' => $data['billing']['postalCode'] ?? null,
-                'address'    => $data['billing']['address'] ?? null,
-                'whom'       => $data['billing']['whom'] ?? null,
-            ]
-        ]
-    ])->render()
-]);
-
+                    // Return the success view
+                    return view('emails.successPayment', [
+                        'gtmPurchase' => [
+                            'transaction_id' => $paymentUniqueId,
+                            'value'         => (float) $data['total'],
+                            'currency'      => 'GBP',
+                            'affiliation'   => 'Seru Training Course',
+                            'coupon'        => $data['couponCode'] ?? null,
+                            'items' => collect($data['cartItems'])->map(fn($i) => [
+                                'item_id'      => (string)($i['unique_id'] ?? $i['id']),
+                                'item_name'    => $i['name'] ?? $i['title'] ?? 'Course',
+                                'price'        => (float)$i['price'],
+                                'quantity'     => (int)$i['quantity'],
+                                'item_brand'   => 'serutrainingcourse',
+                                'item_category'=> $i['category'] ?? 'Courses',
+                                'item_variant' => $i['level'] ?? 'Default',
+                            ])->values(),
+                            'customer' => [
+                                'full_name'  => $data['billing']['fullName'] ?? null,
+                                'email'      => $data['billing']['email'] ?? null,
+                                'phone'      => $data['billing']['phone'] ?? null,
+                                'country'    => $data['billing']['country'] ?? null,
+                                'city'       => $data['billing']['city'] ?? null,
+                                'postalCode' => $data['billing']['postalCode'] ?? null,
+                                'address'    => $data['billing']['address'] ?? null,
+                                'whom'       => $data['billing']['whom'] ?? null,
+                            ]
+                        ]
+                    ]);
 
                 } catch (\Throwable $tx) {
                     DB::rollBack();
-                    Log::error('Other payment tx error: '.$tx->getMessage());
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Could not complete purchase.'
-                    ], 500);
+                    Log::error('Payment tx error: '.$tx->getMessage());
+                    return back()->withErrors(['Could not complete purchase.']);
                 }
             }
 
-            // Fallback
-            return response()->json(['success' => true, 'message' => 'Payment processed successfully']);
+            return back()->with('message', 'Payment processed successfully');
 
-        } catch (ValidationException $e) { // ✅ this now resolves
+        } catch (ValidationException $e) {
             Log::error('Validation failed:', ['errors' => $e->errors(), 'input' => $request->all()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors'  => $e->errors()
-            ], 422);
-
+            return back()->withErrors(['Validation failed.']);
         } catch (\Exception $e) {
             Log::error('Payment processing error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ], 500);
+            return back()->withErrors(['An error occurred: ' . $e->getMessage()]);
         }
     }
 
