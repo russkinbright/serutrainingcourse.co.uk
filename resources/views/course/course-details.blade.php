@@ -11,220 +11,8 @@
 <main id="top" class="relative bg-gray-100 min-h-screen pt-20">
   <div class="mx-auto max-w-[1500px] relative z-10 px-4 py-8">
 
-    <div x-data="{
-      course: null,
-      messages: [],
-      async init() {
-        const slug = window.location.pathname.split('/').pop();
-
-        const upsertMeta = (attr, key, val) => {
-          let el = document.head.querySelector(`meta[${attr}='${key}']`);
-          if (!el) {
-            el = document.createElement('meta');
-            el.setAttribute(attr, key);
-            document.head.appendChild(el);
-          }
-          el.setAttribute('content', val ?? '');
-        };
-
-        try {
-          const response = await fetch(`/api/course-details/${slug}`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-          });
-          const result = await response.json();
-
-          if (!result.success) {
-            this.addMessage(result.message || 'Course not found.', 'error');
-            return;
-          }
-
-          this.course = result.course;
-
-          // ---------- SEO: Title + Meta ----------
-          document.title = this.course.title || 'Course Details';
-          const desc = this.course.meta_description || '';
-          const keywords = this.course.meta_keywords || '';
-          upsertMeta('name', 'description', desc);
-          if (keywords) upsertMeta('name', 'keywords', keywords);
-
-          // Robots: only set when provided; otherwise remove to avoid empty content
-          let robots = document.querySelector('meta[name='robots']');
-          if (this.course.robots_meta && this.course.robots_meta.trim()) {
-            if (!robots) {
-              robots = document.createElement('meta');
-              robots.setAttribute('name', 'robots');
-              document.head.appendChild(robots);
-            }
-            robots.setAttribute('content', this.course.robots_meta.trim());
-          } else if (robots) {
-            robots.remove();
-          }
-
-          // Canonical: absolute URL
-          const canonicalUrl = this.course.canonical_url
-            ? new URL(this.course.canonical_url, window.location.origin).href
-            : new URL('/course-details/' + this.course.slug, window.location.origin).href;
-
-          let linkCanon = document.querySelector('link[rel='canonical']');
-          if (!linkCanon) {
-            linkCanon = document.createElement('link');
-            linkCanon.rel = 'canonical';
-            document.head.appendChild(linkCanon);
-          }
-          linkCanon.setAttribute('href', canonicalUrl);
-
-          // ---------- Open Graph + Twitter ----------
-          const ogTitle = this.course.title || 'Course Details';
-          const ogDesc  = desc;
-          const ogImage = this.course.image || @json(asset('assets/images/default-course.jpg'));
-          const ogUrl   = canonicalUrl;
-
-          upsertMeta('property', 'og:type', 'product');
-          upsertMeta('property', 'og:title', ogTitle);
-          upsertMeta('property', 'og:description', ogDesc);
-          upsertMeta('property', 'og:image', ogImage);
-          upsertMeta('property', 'og:url', ogUrl);
-
-          upsertMeta('name', 'twitter:card', 'summary_large_image');
-          upsertMeta('name', 'twitter:title', ogTitle);
-          upsertMeta('name', 'twitter:description', ogDesc);
-          upsertMeta('name', 'twitter:image', ogImage);
-
-          // ---------- Schema (single, id-based) ----------
-          if (this.course.schema_markup) {
-            const SCHEMA_ID = 'course-schema-jsonld';
-
-            // Clean empty JSON-LD scripts (optional)
-            document.querySelectorAll(`script[type='application/ld+json']:not(#${SCHEMA_ID})`)
-              .forEach(s => { if (!s.textContent?.trim()) s.remove(); });
-
-            let schemaEl = document.getElementById(SCHEMA_ID);
-            if (!schemaEl) {
-              schemaEl = document.createElement('script');
-              schemaEl.type = 'application/ld+json';
-              schemaEl.id = SCHEMA_ID;
-              document.head.appendChild(schemaEl);
-            }
-            try {
-              const payload = typeof this.course.schema_markup === 'string'
-                ? this.course.schema_markup
-                : JSON.stringify(this.course.schema_markup);
-              schemaEl.text = payload;
-            } catch (e) {
-              console.warn('Invalid schema_markup JSON', e);
-            }
-          }
-
-          // ---------- Inject course.description into iframe ----------
-          const iframeEl = document.getElementById('dbHtml');
-          const html = this.course?.description ?? '';
-          const styledHtml = `
-            <style>
-              body { font-size: 18px; line-height: 1.6; font-family: Arial, sans-serif; color: #333; }
-              h1, h2, h3 { color: #ff9900; }
-              ul, ol { padding-left: 1.5rem; }
-            </style>
-            ${html}
-          `;
-          iframeEl.srcdoc = styledHtml;
-
-          const resize = () => {
-            try {
-              iframeEl.style.height = iframeEl.contentWindow.document.documentElement.scrollHeight + 'px';
-            } catch (_) {}
-          };
-          iframeEl.addEventListener('load', () => {
-            resize();
-            try {
-              const ro = new ResizeObserver(resize);
-              ro.observe(iframeEl.contentDocument.documentElement);
-            } catch (_) {}
-          });
-
-          // ---------- GA4: view_item ----------
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({ ecommerce: null });
-          window.dataLayer.push({
-            event: 'view_item',
-            ecommerce: {
-              currency: 'GBP', // change if needed
-              items: [{
-                item_id: this.course?.unique_id ?? this.course?.id,
-                item_name: this.course?.title ?? '',
-                price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
-                item_category: this.course?.category?.name ?? 'Course',
-                quantity: 1
-              }]
-            }
-          });
-
-        } catch (error) {
-          console.error('Error fetching course:', error);
-          this.addMessage('Failed to load course details. Please try again.', 'error');
-        }
-
-        // Init AOS
-        if (window.AOS) AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
-
-        // Loading animation if course not set yet
-        if (!this.course) {
-          lottie.loadAnimation({
-            container: document.getElementById('loading-animation'),
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: 'https://assets4.lottiefiles.com/packages/lf20_44rltw5h.json'
-          });
-        }
-      },
-      addMessage(text, type) {
-        const id = Date.now();
-        this.messages.push({ id, text, type });
-        if (type === 'success') {
-          setTimeout(() => { this.messages = this.messages.filter(m => m.id !== id); }, 3000);
-        }
-      },
-      addToCart() {
-        if (!this.course) { this.addMessage('No course selected.', 'error'); return; }
-
-        // GA4: add_to_cart (fire before redirect)
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ ecommerce: null });
-        window.dataLayer.push({
-          event: 'add_to_cart',
-          ecommerce: {
-            currency: 'GBP', // change if needed
-            value: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
-            items: [{
-              item_id: this.course?.unique_id ?? this.course?.id,
-              item_name: this.course?.title ?? '',
-              price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
-              item_category: this.course?.category?.name ?? 'Course',
-              quantity: 1
-            }]
-          }
-        });
-
-        // Local cart storage
-        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-        cartItems.push({
-          unique_id: this.course.unique_id ?? this.course.id,
-          title: this.course.title,
-          price: isNaN(parseFloat(this.course.price)) ? 0 : parseFloat(this.course.price),
-          image: this.course.image ? this.course.image : @json(asset('assets/images/default-course.jpg')),
-          quantity: 1
-        });
-        localStorage.setItem('cartItems', JSON.stringify(cartItems));
-
-        this.addMessage('Course added to cart!', 'success');
-        window.location.href = '{{ route('cart') }}';
-      }
-    }" x-init="init()">
-
+    {{-- Alpine root: lightweight now --}}
+    <div x-data="coursePage()" x-init="init">
       <!-- Messages -->
       <div class="mb-6" data-aos="fade-up">
         <template x-for="message in messages" :key="message.id">
@@ -243,7 +31,8 @@
       </div>
 
       <!-- Hero -->
-      <div x-show="course" class="relative h-96 rounded-2xl overflow-hidden mb-8 group shadow-2xl" data-aos="fade-up">
+      <div x-show="course" class="relative h-96 rounded-2xl overflow-hidden mb-8 group shadow-2xl"
+           data-aos="fade-up">
         <img :src="'https://thestudyportal.online/storage/Seru Website/1755511868_vZONlQCS_3d066e8f-86dd-4b51-b27f-905e0d414583.jpg'"
              :alt="course?.title || 'Course image'"
              class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
@@ -296,7 +85,7 @@
             <div class="text-2xl font-bold text-green-600 mb-4">
               <span x-text="'£' + (parseFloat(course?.price || 0)).toFixed(2)"></span>
             </div>
-            <button @click="addToCart()"
+            <button @click="addToCart"
               class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white cursor-pointer py-3 font-semibold rounded-lg btn-pulse transition transform hover:scale-95 flex items-center justify-center">
               <i class="fas fa-rocket mr-2"></i> Take This Course
             </button>
@@ -308,7 +97,7 @@
         </div>
       </div>
 
-      <!-- Reviews (static demo) -->
+      <!-- Reviews (example static) -->
       <div x-show="course" class="mb-8" data-aos="fade-up" data-aos-delay="200">
         <h2 class="text-2xl font-extrabold text-orange-600 mb-4 flex items-center">
           <i class="fas fa-star mr-2 text-orange-500"></i> Student Reviews
@@ -318,7 +107,9 @@
             <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right">
               <div class="flex items-center mb-2">
                 <div class="star-rating flex">
-                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star"></i>
+                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star"></i>
                 </div>
                 <span class="ml-2 text-gray-600">4.0</span>
               </div>
@@ -329,7 +120,9 @@
             <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right" data-aos-delay="100">
               <div class="flex items-center mb-2">
                 <div class="star-rating flex">
-                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i>
+                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star checked"></i>
                 </div>
                 <span class="ml-2 text-gray-600">5.0</span>
               </div>
@@ -340,7 +133,9 @@
             <div class="review-card bg-white glassmorphic rounded-2xl p-6 card-hover" data-aos="fade-right" data-aos-delay="200">
               <div class="flex items-center mb-2">
                 <div class="star-rating flex">
-                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i class="fas fa-star-half-alt checked"></i>
+                  <i class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star checked"></i><i class="fas fa-star checked"></i><i
+                    class="fas fa-star-half-alt checked"></i>
                 </div>
                 <span class="ml-2 text-gray-600">4.5</span>
               </div>
@@ -351,25 +146,224 @@
         </div>
       </div>
 
-    </div> <!-- /x-data wrapper -->
+    </div> {{-- /x-data --}}
   </div>
 </main>
 
 @include('main.footer')
+
+{{-- Back to Top button --}}
+<a href="#top" id="backToTopBtn"
+   class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-600 to-orange-600 text-white p-4 rounded-full shadow-lg z-50 transition-all duration-300 opacity-0 pointer-events-none hover:scale-110"
+   aria-label="Back to Top" data-aos="fade-up">
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+       stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+  </svg>
+</a>
 @endsection
 
 @push('scripts')
 <script>
-// Back to Top button behavior
+function coursePage() {
+  const DEFAULT_IMAGE = @json(asset('assets/images/default-course.jpg'));
+  const CURRENCY = 'GBP'; // change if needed
+
+  // small helper to upsert meta tags
+  function upsertMeta(attr, key, val) {
+    let el = document.head.querySelector(`meta[${attr}='${key}']`);
+    if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el); }
+    el.setAttribute('content', val ?? '');
+  }
+
+  return {
+    course: null,
+    messages: [],
+
+    async init() {
+      const slug = window.location.pathname.split('/').pop();
+
+      try {
+        const res = await fetch(`/api/course-details/${slug}`, {
+          headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        });
+        const result = await res.json();
+        if (!result.success) { this.addMessage(result.message || 'Course not found.', 'error'); return; }
+
+        this.course = result.course;
+
+        // ----- SEO: title & description & keywords -----
+        document.title = this.course.title || 'Course Details';
+        const desc = this.course.meta_description || '';
+        const keywords = this.course.meta_keywords || '';
+        upsertMeta('name', 'description', desc);
+        if (keywords) upsertMeta('name', 'keywords', keywords);
+
+        // Robots: set only if provided, else remove
+        let robots = document.querySelector('meta[name="robots"]');
+        if (this.course.robots_meta && this.course.robots_meta.trim()) {
+          if (!robots) { robots = document.createElement('meta'); robots.setAttribute('name', 'robots'); document.head.appendChild(robots); }
+          robots.setAttribute('content', this.course.robots_meta.trim());
+        } else if (robots) {
+          robots.remove();
+        }
+
+        // Canonical absolute
+        const canonicalUrl = this.course.canonical_url
+          ? new URL(this.course.canonical_url, window.location.origin).href
+          : new URL('/course-details/' + this.course.slug, window.location.origin).href;
+        let linkCanon = document.querySelector('link[rel="canonical"]');
+        if (!linkCanon) { linkCanon = document.createElement('link'); linkCanon.rel = 'canonical'; document.head.appendChild(linkCanon); }
+        linkCanon.setAttribute('href', canonicalUrl);
+
+        // OpenGraph & Twitter
+        const ogTitle = this.course.title || 'Course Details';
+        const ogDesc  = desc;
+        const ogImage = this.course.image || DEFAULT_IMAGE;
+        const ogUrl   = canonicalUrl;
+
+        upsertMeta('property', 'og:type', 'product');
+        upsertMeta('property', 'og:title', ogTitle);
+        upsertMeta('property', 'og:description', ogDesc);
+        upsertMeta('property', 'og:image', ogImage);
+        upsertMeta('property', 'og:url', ogUrl);
+
+        upsertMeta('name', 'twitter:card', 'summary_large_image');
+        upsertMeta('name', 'twitter:title', ogTitle);
+        upsertMeta('name', 'twitter:description', ogDesc);
+        upsertMeta('name', 'twitter:image', ogImage);
+
+        // ----- JSON-LD (single, id-based, no duplicates) -----
+        if (this.course.schema_markup) {
+          const SCHEMA_ID = 'course-schema-jsonld';
+          // remove empty json-ld scripts (optional)
+          document.querySelectorAll(`script[type="application/ld+json"]:not(#${SCHEMA_ID})`)
+            .forEach(s => { if (!(s.textContent || '').trim()) s.remove(); });
+
+          let schemaEl = document.getElementById(SCHEMA_ID);
+          if (!schemaEl) {
+            schemaEl = document.createElement('script');
+            schemaEl.type = 'application/ld+json';
+            schemaEl.id = SCHEMA_ID;
+            document.head.appendChild(schemaEl);
+          }
+          try {
+            const payload = (typeof this.course.schema_markup === 'string')
+              ? this.course.schema_markup
+              : JSON.stringify(this.course.schema_markup);
+            schemaEl.text = payload;
+          } catch (e) { console.warn('Invalid schema_markup JSON', e); }
+        }
+
+        // ----- Description into iframe -----
+        const iframeEl = document.getElementById('dbHtml');
+        const html = this.course?.description ?? '';
+        const styledHtml = `
+          <style>
+            body { font-size: 18px; line-height: 1.6; font-family: Arial, sans-serif; color: #333; }
+            h1, h2, h3 { color: #ff9900; }
+            ul, ol { padding-left: 1.5rem; }
+          </style>
+          ${html}
+        `;
+        iframeEl.srcdoc = styledHtml;
+
+        const resize = () => {
+          try { iframeEl.style.height = iframeEl.contentWindow.document.documentElement.scrollHeight + 'px'; } catch(_) {}
+        };
+        iframeEl.addEventListener('load', () => {
+          resize();
+          try { new ResizeObserver(resize).observe(iframeEl.contentDocument.documentElement); } catch(_) {}
+        });
+
+        // ----- GA4: view_item -----
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ ecommerce: null });
+        window.dataLayer.push({
+          event: 'view_item',
+          ecommerce: {
+            currency: CURRENCY,
+            items: [{
+              item_id: this.course?.unique_id ?? this.course?.id,
+              item_name: this.course?.title ?? '',
+              price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+              item_category: this.course?.category?.name ?? 'Course',
+              quantity: 1
+            }]
+          }
+        });
+
+      } catch (err) {
+        console.error('Error fetching course:', err);
+        this.addMessage('Failed to load course details. Please try again.', 'error');
+      }
+
+      // AOS
+      if (window.AOS) AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
+
+      // Lottie loading if course missing
+      if (!this.course) {
+        lottie.loadAnimation({
+          container: document.getElementById('loading-animation'),
+          renderer: 'svg', loop: true, autoplay: true,
+          path: 'https://assets4.lottiefiles.com/packages/lf20_44rltw5h.json'
+        });
+      }
+    },
+
+    addMessage(text, type) {
+      const id = Date.now();
+      this.messages.push({ id, text, type });
+      if (type === 'success') {
+        setTimeout(() => { this.messages = this.messages.filter(m => m.id !== id); }, 3000);
+      }
+    },
+
+    addToCart() {
+      if (!this.course) { this.addMessage('No course selected.', 'error'); return; }
+
+      // GA4: add_to_cart
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ ecommerce: null });
+      window.dataLayer.push({
+        event: 'add_to_cart',
+        ecommerce: {
+          currency: CURRENCY,
+          value: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+          items: [{
+            item_id: this.course?.unique_id ?? this.course?.id,
+            item_name: this.course?.title ?? '',
+            price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
+            item_category: this.course?.category?.name ?? 'Course',
+            quantity: 1
+          }]
+        }
+      });
+
+      // Local cart storage
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      cartItems.push({
+        unique_id: this.course.unique_id ?? this.course.id,
+        title: this.course.title,
+        price: isNaN(parseFloat(this.course.price)) ? 0 : parseFloat(this.course.price),
+        image: this.course.image || DEFAULT_IMAGE,
+        quantity: 1
+      });
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+      this.addMessage('Course added to cart!', 'success');
+      window.location.href = @json(route('cart'));
+    }
+  };
+}
+
+// Back-to-top button behavior
 document.addEventListener('DOMContentLoaded', () => {
   const backTopBtn = document.getElementById('backToTopBtn');
   if (!backTopBtn) return;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      backTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-    } else {
-      backTopBtn.classList.add('opacity-0', 'pointer-events-none');
-    }
+    if (window.scrollY > 300) backTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+    else backTopBtn.classList.add('opacity-0', 'pointer-events-none');
   });
   backTopBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -378,12 +372,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
-
-<!-- Back to Top Button (fixed) -->
-<a href="#top" id="backToTopBtn"
-   class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-600 to-orange-600 text-white p-4 rounded-full shadow-lg z-50 transition-all duration-300 opacity-0 pointer-events-none hover:scale-110"
-   aria-label="Back to Top" data-aos="fade-up">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-  </svg>
-</a>
