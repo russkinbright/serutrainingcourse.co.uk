@@ -217,24 +217,7 @@
                             autoplay: true,
                             path: 'https://assets4.lottiefiles.com/packages/lf20_44rltw5h.json'
                         });
-                    },
-            
-                    // GA4: view_item
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({ ecommerce: null });
-                    window.dataLayer.push({
-                        event: 'view_item',
-                        ecommerce: {
-                            currency: 'GBP', // change to your currency if needed
-                            items: [{
-                                item_id: this.course?.unique_id ?? this.course?.id,
-                                item_name: this.course?.title ?? '',
-                                price: isNaN(parseFloat(this.course?.price)) ? 0 : parseFloat(this.course?.price),
-                                item_category: this.course?.category?.name ?? 'Course',
-                                quantity: 1
-                            }]
-                        }
-                    });
+                    }
             
                 },
                 addMessage(text, type) {
