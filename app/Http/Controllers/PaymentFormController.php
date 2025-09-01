@@ -205,10 +205,38 @@ class PaymentFormController extends Controller
                     DB::commit();
 
                     // frontend will show “Purchase successfully completed!” and clear cart
-                    return response()->json([
-                'success' => true,
-                'redirect_url' => route('checkout.demosuccess') // 👈 send success page URL
-            ]);
+                 return response()->json([
+                    'success' => true,
+                    'html' => view('emails.successPayment', [
+                        'gtmPurchase' => [
+                            'transaction_id' => $paymentUniqueId, // your order id (stable, not PI id)
+                            'value'         => (float) $total,    // final paid £
+                            'currency'      => 'GBP',
+                            'affiliation'   => 'Seru Training Course',
+                            'coupon'        => $couponCode ?? null,
+                            'items' => collect($cartItems)->map(fn($i) => [
+                                'item_id'      => (string)($i['unique_id'] ?? $i['id']),
+                                'item_name'    => $i['name'] ?? $i['title'] ?? 'Course',
+                                'price'        => (float)$i['price'],
+                                'quantity'     => (int)$i['quantity'],
+                                'item_brand'   => 'serutrainingcourse',
+                                'item_category'=> $i['category'] ?? 'Courses',
+                                'item_variant' => $i['level'] ?? 'Default',
+                            ])->values(),
+                            'customer' => [
+                                'full_name'  => $billing['fullName'] ?? null,
+                                'email'      => $billing['email'] ?? null,
+                                'phone'      => $billing['phone'] ?? null,
+                                'country'    => $billing['country'] ?? null,
+                                'city'       => $billing['city'] ?? null,
+                                'postalCode' => $billing['postalCode'] ?? null,
+                                'address'    => $billing['address'] ?? null,
+                                'whom'       => $billing['whom'] ?? null,
+                            ]
+                        ]
+                    ])->render()
+                ]);
+
                 } catch (\Throwable $tx) {
                     DB::rollBack();
                     Log::error('Other payment tx error: '.$tx->getMessage());
