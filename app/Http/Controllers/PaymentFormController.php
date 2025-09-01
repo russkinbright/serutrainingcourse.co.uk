@@ -207,7 +207,7 @@ class PaymentFormController extends Controller
                     // frontend will show “Purchase successfully completed!” and clear cart
                     return response()->json([
                 'success' => true,
-                'redirect_url' => route('checkout.success') // 👈 send success page URL
+                'redirect_url' => route('checkout.demosuccess') // 👈 send success page URL
             ]);
                 } catch (\Throwable $tx) {
                     DB::rollBack();

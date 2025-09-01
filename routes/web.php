@@ -71,7 +71,7 @@ Route::get('/pay', function () {
 
 Route::get('/demo/checkout/success', function () {
     return view('emails.successPayment');
-})->name('checkout.success');
+})->name('checkout.demosuccess');
 
 // Clear Cache
 Route::get('/clear', [ClearController::class, 'clearCache']);
