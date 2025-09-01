@@ -130,7 +130,7 @@
                                     price: parseFloat(course.price) || 0,
                                     currency: 'GBP',
                                     item_category: course.category ?? 'Courses',
-                                    item_brand: 'WiseCampus',
+                                    item_brand: 'Serutrainingcourse',
                                     item_variant: course.level ?? 'Default'
                                 }]
                             }
