@@ -1,4 +1,5 @@
 @extends('home.default')
+@section('content')
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -21,7 +22,7 @@
         }
     </style>
 
-<body class="bg-gradient-to-b from-gray-50 to-blue-100 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 relative overflow-hidden">
+<main class="bg-gradient-to-b from-gray-50 to-blue-100 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 relative overflow-hidden">
 
     <!-- Confetti Container -->
     <div id="confetti-container" class="absolute inset-0 pointer-events-none z-0"></div>
@@ -163,5 +164,5 @@
             }
         });
     </script>
-</body>
-</html>
+</main>
+@endsection
