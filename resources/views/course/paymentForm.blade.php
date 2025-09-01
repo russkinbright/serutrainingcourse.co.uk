@@ -26,6 +26,46 @@
         cardValid: null,
         countrySearch: '',
         showCountryDropdown: false,
+
+        /* ---------- GA4 helpers ---------- */
+        ga4Items(items){
+            return (items || []).map(i => ({
+                item_id: String(i.unique_id ?? i.id ?? ''),
+                item_name: i.title ?? 'Course',
+                currency: 'GBP',
+                price: Number(i.price || 0),
+                quantity: Number(i.quantity || 1),
+                item_brand: 'WiseCampus',
+                item_category: i.category ?? 'Courses',
+                item_variant: i.level ?? 'Default'
+            }));
+        },
+        ga4Total(items){
+            return (items || []).reduce((s,i)=> s + Number(i.price||0) * Number(i.quantity||1), 0);
+        },
+        pushBeginCheckout(){
+            if (!this.cartItems.length) return;
+
+            // 🚫 guard: only once per page load
+            if (window.__beginCheckoutSentOnce) return;
+            window.__beginCheckoutSentOnce = true;
+
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ ecommerce: null });
+            window.dataLayer.push({
+                event: 'begin_checkout',
+                event_id: 'bc-' + Date.now(),
+                ecommerce: {
+                    currency: 'GBP',
+                    // use discounted total shown to the user
+                    value: parseFloat(this.total),
+                    items: this.ga4Items(this.cartItems)
+                }
+            });
+            // console.log('GA4 begin_checkout fired');
+        },
+        /* ---------------------------------- */
+
         countries: [
             'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 
             'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 
@@ -57,19 +97,25 @@
         init() {
             this.cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
             this.discount = JSON.parse(localStorage.getItem('cartDiscount')) || 0;
+
             if (this.cartItems.length === 0) {
                 this.addMessage('Cart is empty. Please add courses.', 'error');
                 return;
             }
+
+            // Fire GA4 begin_checkout ON ENTRY (once)
+            this.pushBeginCheckout();
+
             AOS.init({ duration: 1000, easing: 'ease-in-out', once: false, mirror: true });
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // de-dupe any duplicate sticky summaries
             const summaries = document.querySelectorAll('.order-summary-sticky');
             if (summaries.length > 1) {
-                console.warn('Multiple order summaries detected:', summaries.length);
-                for (let i = 1; i < summaries.length; i++) {
-                    summaries[i].remove();
-                }
+                for (let i = 1; i < summaries.length; i++) summaries[i].remove();
             }
+
+            // close country dropdown when clicking outside
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.country-dropdown')) {
                     this.showCountryDropdown = false;
@@ -378,8 +424,6 @@
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M7.076 2.395A6.563 6.563 0 0112 0h6.666C20.506 0 22 1.492 22 3.332v17.336C22 22.508 20.508 24 18.668 24H5.332C3.492 24 2 22.508 2 20.668V8.666h2v12.002c0 .736.596 1.332 1.332 1.332h13.336c.736 0 1.332-.596 1.332-1.332V3.332c0-.736-.596-1.332-1.332-1.332H12c-1.404 0-2.668.573-3.58 1.495l-.344.4H6.666C5.194 4 4 5.194 4 6.666v2H2v-2C2 4.086 4.086 2 6.666 2h.41z" />
-                                </svg>
-                                You will be redirected to PayPal to complete your payment.
                             </div>
                         </div>
                     </div>
@@ -568,64 +612,19 @@
         </main>
 
         <style>
-            .font-orbitron {
-                font-family: 'Orbitron', sans-serif;
-            }
-
-            .font-poppins {
-                font-family: 'Poppins', sans-serif;
-            }
-
-            .glassmorphic {
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(12px);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .card-hover {
-                transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-            }
-
-            .card-hover:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-            .animate-fade-in {
-                animation: fadeIn 0.5s ease-in-out;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            .particle {
-                position: absolute;
-                width: 8px;
-                height: 8px;
-                background: rgba(139, 92, 246, 0.5);
-                border-radius: 50%;
-                animation: float 6s infinite ease-in-out;
-                z-index: 0;
-            }
-
-            .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
-            .particle:nth-child(2) { left: 30%; top: 50%; animation-delay: 2s; }
-            .particle:nth-child(3) { left: 70%; top: 30%; animation-delay: 4s; }
-
-            @keyframes float {
-                0% { transform: translateY(0) scale(1); opacity: 0.7; }
-                50% { transform: translateY(-20px) scale(1.2); opacity: 0.3; }
-                100% { transform: translateY(0) scale(1); opacity: 0.7; }
-            }
-
-            @keyframes pulse-slow {
-                0% { transform: scale(1); opacity: 0.9; }
-                50% { transform: scale(1.05); opacity: 1; }
-                100% { transform: scale(1); opacity: 0.9; }
-            }
+            .font-orbitron { font-family: 'Orbitron', sans-serif; }
+            .font-poppins { font-family: 'Poppins', sans-serif; }
+            .glassmorphic { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+            .card-hover { transition: transform .4s ease, box-shadow .4s ease, background .4s ease; }
+            .card-hover:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,.25); background: rgba(255,255,255,.2); }
+            .animate-fade-in { animation: fadeIn .5s ease-in-out; }
+            @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+            .particle{position:absolute;width:8px;height:8px;background:rgba(139,92,246,.5);border-radius:50%;animation:float 6s infinite ease-in-out;z-index:0}
+            .particle:nth-child(1){left:10%;top:20%;animation-delay:0s}
+            .particle:nth-child(2){left:30%;top:50%;animation-delay:2s}
+            .particle:nth-child(3){left:70%;top:30%;animation-delay:4s}
+            @keyframes float{0%{transform:translateY(0) scale(1);opacity:.7}50%{transform:translateY(-20px) scale(1.2);opacity:.3}100%{transform:translateY(0) scale(1);opacity:.7}}
+            @keyframes pulse-slow{0%{transform:scale(1);opacity:.9}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.9}}
         </style>
 
     </div>
